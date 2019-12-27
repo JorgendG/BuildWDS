@@ -1,3 +1,6 @@
+# iso gemaakt met een autounattend.xml
+# oscdimg.exe -m -o -u2 -udfver102 -bootdata:2#p0,e,bc:\temp\iso\boot\etfsboot.com#pEF,e,bc:\temp\iso\efi\microsoft\boot\efisys.bin c:\temp\iso c:\temp\wds01.iso
+
 $sourcedir = "\\nasje\public\wim"
 
 New-Item -ItemType Directory -Path c:\ -Name WDSImages
