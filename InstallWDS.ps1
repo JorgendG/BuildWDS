@@ -32,10 +32,10 @@ Install-PackageProvider -Name "Nuget" -Force
 Register-PackageSource -Name chocolatey -Location http://chocolatey.org/api/v2 -ProviderName NuGet -Trusted -Verbose
 Install-Package -Name sql-server-management-studio -ProviderName chocolatey -force
 
-Install-Module -Name xPSDesiredStateConfiguration -Force
-Install-Module -Name SqlServerDsc -Force
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize" -Value 2
 
-$script = Invoke-WebRequest -Uri https://github.com/JorgendG/BuildWDS/raw/master/PullServerSQL.ps1
-Invoke-Command -ScriptBlock{ $script.Content }
+Find-Module xPSDesiredStateConfiguration | Install-Module -Force
+Find-Module SqlServerDsc | Install-Module -Force
 
-
+Invoke-WebRequest -Uri https://github.com/JorgendG/BuildWDS/raw/master/PullServerSQL.ps1 -OutFile $env:TEMP\PullServerSQL.ps1
+& $env:TEMP\PullServerSQL.ps1
