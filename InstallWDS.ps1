@@ -28,3 +28,6 @@ Install-PackageProvider -Name "Nuget" -Force
 Register-PackageSource -Name chocolatey -Location http://chocolatey.org/api/v2 -ProviderName NuGet -Trusted -Verbose
 Install-Package -Name sql-server-express -ProviderName chocolatey -force
 Install-Package -Name sql-server-management-studio -ProviderName chocolatey -force
+
+Install-Module -Name xPSDesiredStateConfiguration -Force
+Install-Module -Name SqlServerDsc -Force
