@@ -26,8 +26,12 @@ Import-WdsInstallImage -Path c:\wdsimages\install2012r2.wim -ImageName 'Windows 
 
 Install-PackageProvider -Name "Nuget" -Force
 Register-PackageSource -Name chocolatey -Location http://chocolatey.org/api/v2 -ProviderName NuGet -Trusted -Verbose
-Install-Package -Name sql-server-express -ProviderName chocolatey -force
 Install-Package -Name sql-server-management-studio -ProviderName chocolatey -force
 
 Install-Module -Name xPSDesiredStateConfiguration -Force
 Install-Module -Name SqlServerDsc -Force
+
+$script = Invoke-WebRequest -Uri https://github.com/JorgendG/BuildWDS/raw/master/PullServerSQL.ps1
+Invoke-Command -ScriptBlock{ $script.Content }
+
+

@@ -62,3 +62,6 @@ configuration PullServerSQL
         DependsOn       = '[File]PullServerFiles'
     }
 }
+
+PullServerSQL
+Start-DscConfiguration -Path .\PullServerSQL -Verbose -Force
