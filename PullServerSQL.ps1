@@ -1,9 +1,10 @@
-
+start-transcript -path c:\windows\temp\pullserversql.txt
 
 configuration PullServerSQL 
 {
     Import-DscResource -ModuleName PSDesiredStateConfiguration
     Import-DscResource -ModuleName xPSDesiredStateConfiguration
+    Import-DscResource -ModuleName SqlServerDsc
 
     WindowsFeature dscservice 
     {
