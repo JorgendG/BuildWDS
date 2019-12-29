@@ -27,8 +27,9 @@ Import-WdsInstallImage -Path c:\wdsimages\install2016.wim -ImageName 'Windows Se
 Import-WdsInstallImage -Path c:\wdsimages\install2012r2.wim -ImageName 'Windows Server 2012 R2 SERVERSTANDARD' -ImageGroup 'Windows Server 2012R2'
 #>    
 & wdsutil.exe /Set-Server /AnswerClients:All
-install-module packagemanagement -Verbose -Force
 Install-PackageProvider -Name "Nuget" -Force
+
+install-module packagemanagement -Verbose -Force
 
 Find-Module -Name xPSDesiredStateConfiguration | Install-Module -Force
 Find-Module -Name SqlServerDsc | Install-Module -Force
