@@ -28,10 +28,12 @@ Import-WdsInstallImage -Path c:\wdsimages\install2012r2.wim -ImageName 'Windows 
 #>    
 & wdsutil.exe /Set-Server /AnswerClients:All
 
+$script:PSGetAppLocalPath="$env:LOCALAPPDATA\Microsoft\Windows\PowerShell\PowerShellGet"
+Install-PackageProvider -Name "Nuget" -Force
+
 Find-Module -Name xPSDesiredStateConfiguration | Install-Module -Force
 Find-Module -Name SqlServerDsc | Install-Module -Force
 
-Install-PackageProvider -Name "Nuget" -Force
 Register-PackageSource -Name chocolatey -Location http://chocolatey.org/api/v2 -ProviderName NuGet -Trusted -Verbose
 #Install-Package -Name sql-server-management-studio -ProviderName chocolatey -force
 
