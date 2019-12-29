@@ -6,7 +6,7 @@ $sourcedir = "\\nasje\public\wim"
 $sourcedirmodules = "\\nasje\public\modules"
 
 New-Item -ItemType Directory -Path c:\ -Name WDSImages
-<#
+
 Copy-Item -Path "$sourcedir\boot.wim" -Destination c:\WDSImages
 Copy-Item -Path "$sourcedir\installw10_19h2.wim" -Destination c:\WDSImages
 Copy-Item -Path "$sourcedir\install2019.wim" -Destination c:\WDSImages
@@ -26,22 +26,15 @@ Import-WdsInstallImage -Path c:\wdsimages\installw10_19h2.wim -ImageName 'Window
 Import-WdsInstallImage -Path c:\wdsimages\install2019.wim -ImageName 'Windows Server 2019 SERVERSTANDARD' -ImageGroup 'Windows Server 2019'
 Import-WdsInstallImage -Path c:\wdsimages\install2016.wim -ImageName 'Windows Server 2016 SERVERSTANDARD' -ImageGroup 'Windows Server 2016'
 Import-WdsInstallImage -Path c:\wdsimages\install2012r2.wim -ImageName 'Windows Server 2012 R2 SERVERSTANDARD' -ImageGroup 'Windows Server 2012R2'
-#>    
-#& wdsutil.exe /Set-Server /AnswerClients:All
+    
+& wdsutil.exe /Set-Server /AnswerClients:All
 
-Copy-Item $sourcedirmodules\PackageManagement 'C:\Program Files\WindowsPowerShell\Modules' -Recurse -Force
 Copy-Item $sourcedirmodules\xPSDesiredStateConfiguration 'C:\Program Files\WindowsPowerShell\Modules' -Recurse -Force
 Copy-Item $sourcedirmodules\SqlServerDsc 'C:\Program Files\WindowsPowerShell\Modules' -Recurse -Force
 
 Install-PackageProvider -Name "Nuget" -Force
-
-install-module packagemanagement -Verbose -Force
-
-Find-Module -Name xPSDesiredStateConfiguration | Install-Module -Force
-Find-Module -Name SqlServerDsc | Install-Module -Force
-
 Register-PackageSource -Name chocolatey -Location http://chocolatey.org/api/v2 -ProviderName NuGet -Trusted -Verbose
-#Install-Package -Name sql-server-management-studio -ProviderName chocolatey -force
+Install-Package -Name sql-server-management-studio -ProviderName chocolatey -force
 
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize" -Value 2
 
