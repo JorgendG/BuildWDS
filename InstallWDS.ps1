@@ -16,6 +16,7 @@ Copy-Item -Path "$sourcedir\unattended.xml" -Destination c:\WDSImages
 
 Add-WindowsFeature WDS -includeall
 & wdsutil.exe /initialize-server /reminst:'c:\remoteinstall' /standalone 
+<#
 New-WdsInstallImageGroup -Name 'Windows 10' 
 New-WdsInstallImageGroup -Name 'Windows Server 2019' 
 New-WdsInstallImageGroup -Name 'Windows Server 2016' 
@@ -26,11 +27,12 @@ Import-WdsInstallImage -Path c:\wdsimages\installw10_19h2.wim -ImageName 'Window
 Import-WdsInstallImage -Path c:\wdsimages\install2019.wim -ImageName 'Windows Server 2019 SERVERSTANDARD' -ImageGroup 'Windows Server 2019'
 Import-WdsInstallImage -Path c:\wdsimages\install2016.wim -ImageName 'Windows Server 2016 SERVERSTANDARD' -ImageGroup 'Windows Server 2016'
 Import-WdsInstallImage -Path c:\wdsimages\install2012r2.wim -ImageName 'Windows Server 2012 R2 SERVERSTANDARD' -ImageGroup 'Windows Server 2012R2'
-    
+#>    
 & wdsutil.exe /Set-Server /AnswerClients:All
 
 Copy-Item $sourcedirmodules\xPSDesiredStateConfiguration 'C:\Program Files\WindowsPowerShell\Modules' -Recurse -Force
 Copy-Item $sourcedirmodules\SqlServerDsc 'C:\Program Files\WindowsPowerShell\Modules' -Recurse -Force
+Copy-Item $sourcedirmodules\cWDS 'C:\Program Files\WindowsPowerShell\Modules' -Recurse -Force
 
 Install-PackageProvider -Name "Nuget" -Force
 Register-PackageSource -Name chocolatey -Location http://chocolatey.org/api/v2 -ProviderName NuGet -Trusted -Verbose
