@@ -1,10 +1,10 @@
-start-transcript -path c:\windows\temp\pullserversql.txt
-
 configuration PullServerSQL 
 {
     Import-DscResource -ModuleName PSDesiredStateConfiguration
     Import-DscResource -ModuleName xPSDesiredStateConfiguration
     Import-DscResource -ModuleName SqlServerDsc
+    Import-DscResource -ModuleName cWDS
+    
 
     WindowsFeature dscservice 
     {
@@ -62,7 +62,57 @@ configuration PullServerSQL
         Contents        = 'cb30127b-4b66-4f83-b207-c4801fb05087'
         DependsOn       = '[File]PullServerFiles'
     }
+
+    cWDSInitialize InitWDS
+    {
+        Ensure = 'Present'
+        RootFolder = "c:\remoteinstall"
+    }
+
+    cWDSInstallImage bootimage
+    {
+        Ensure = 'Present'
+        ImageName = 'Microsoft Windows Setup (x64)'
+        Path = 'c:\wdsimages\boot.wim'
+        DependsOn = '[cWDSInitialize]InitWDS'
+    }
+
+    cWDSInstallImage server2019
+    {
+        Ensure = 'Present'
+        ImageName = 'Windows Server 2019 SERVERSTANDARD'
+        GroupName = 'Windows Server 2019'
+        Path = 'c:\wdsimages\install2019.wim'
+        DependsOn = '[cWDSInitialize]InitWDS'
+    }
+
+    cWDSInstallImage server2016
+    {
+        Ensure = 'Present'
+        ImageName = 'Windows Server 2016 SERVERSTANDARD'
+        GroupName = 'Windows Server 2016'
+        Path = 'c:\wdsimages\install2016.wim'
+        DependsOn = '[cWDSInitialize]InitWDS'
+    }
+
+    cWDSInstallImage server2012r2
+    {
+        Ensure = 'Present'
+        ImageName = 'Windows Server 2012 R2 SERVERSTANDARD'
+        GroupName = 'Windows Server 2012R2'
+        Path = 'c:\wdsimages\install2012r2.wim'
+        DependsOn = '[cWDSInitialize]InitWDS'
+    }
+
+    cWDSInstallImage windows10
+    {
+        Ensure = 'Present'
+        ImageName = 'Windows 10 Enterprise Evaluation'
+        GroupName = 'Windows 10'
+        Path = 'c:\wdsimages\installw10_19h2.wim'
+        DependsOn = '[cWDSInitialize]InitWDS'
+    }
 }
 
 PullServerSQL
-Start-DscConfiguration -Path .\PullServerSQL -Verbose -Force
+Start-DscConfiguration -Path .\PullServerSQL -Verbose -wait -Force
