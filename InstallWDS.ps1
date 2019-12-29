@@ -3,6 +3,7 @@
 start-transcript -path c:\windows\temp\installwds.txt
 
 $sourcedir = "\\nasje\public\wim"
+$sourcedirmodules = "\\nasje\public\modules"
 
 New-Item -ItemType Directory -Path c:\ -Name WDSImages
 <#
@@ -27,6 +28,8 @@ Import-WdsInstallImage -Path c:\wdsimages\install2016.wim -ImageName 'Windows Se
 Import-WdsInstallImage -Path c:\wdsimages\install2012r2.wim -ImageName 'Windows Server 2012 R2 SERVERSTANDARD' -ImageGroup 'Windows Server 2012R2'
 #>    
 #& wdsutil.exe /Set-Server /AnswerClients:All
+
+Copy-Item $sourcedirmodules\PackageManagement 'C:\Program Files\WindowsPowerShell\Modules' -Recurse -Force
 Install-PackageProvider -Name "Nuget" -Force
 
 install-module packagemanagement -Verbose -Force
