@@ -63,10 +63,76 @@ configuration PullServerSQL
         DependsOn       = '[File]PullServerFiles'
     }
 
+    WindowsFeature 'WDS'
+    {
+        Name   = 'WDS'
+        Ensure = 'Present'
+        IncludeAllSubFeature = $true
+    }
+
+    File wdsimagesfolder 
+    {
+        DestinationPath = 'c:\wdsimages'
+        Ensure = 'Present'
+        Type = 'Directory'
+        Force = $true
+    }
+
+    File bootwim
+    {
+        Ensure = 'Present'
+        Type = 'File'
+        SourcePath = '\\nasje\public\wim\boot.wim'
+        DestinationPath = 'c:\wdsimages\boot.wim'
+        DependsOn = '[File]wdsimagesfolder'
+        MatchSource = $false
+    }
+
+    File install2019wim
+    {
+        Ensure = 'Present'
+        Type = 'File'
+        SourcePath = '\\nasje\public\wim\install2019.wim'
+        DestinationPath = 'c:\wdsimages\install2019.wim'
+        DependsOn = '[File]wdsimagesfolder'
+        MatchSource = $false
+    }
+
+
+    File install2016wim
+    {
+        Ensure = 'Present'
+        Type = 'File'
+        SourcePath = '\\nasje\public\wim\install2016.wim'
+        DestinationPath = 'c:\wdsimages\install2016.wim'
+        DependsOn = '[File]wdsimagesfolder'
+        MatchSource = $false
+    }
+
+    File install2012r2wim
+    {
+        Ensure = 'Present'
+        Type = 'File'
+        SourcePath = '\\nasje\public\wim\install2012r2.wim'
+        DestinationPath = 'c:\wdsimages\install2012r2.wim'
+        DependsOn = '[File]wdsimagesfolder'
+        MatchSource = $false
+    }
+
+    File installw10wim
+    {
+        Ensure = 'Present'
+        Type = 'File'
+        SourcePath = '\\nasje\public\wim\installw10_19h2.wim'
+        DestinationPath = 'c:\wdsimages\installw10_19h2.wim'
+        DependsOn = '[File]wdsimagesfolder'
+    }
+
     cWDSInitialize InitWDS
     {
         Ensure = 'Present'
         RootFolder = "c:\remoteinstall"
+        DependsOn = '[WindowsFeature]WDS'
     }
 
     cWDSInstallImage bootimage
@@ -74,7 +140,7 @@ configuration PullServerSQL
         Ensure = 'Present'
         ImageName = 'Microsoft Windows Setup (x64)'
         Path = 'c:\wdsimages\boot.wim'
-        DependsOn = '[cWDSInitialize]InitWDS'
+        DependsOn = '[cWDSInitialize]InitWDS','[File]bootwim'
     }
 
     cWDSInstallImage server2019
@@ -83,7 +149,7 @@ configuration PullServerSQL
         ImageName = 'Windows Server 2019 SERVERSTANDARD'
         GroupName = 'Windows Server 2019'
         Path = 'c:\wdsimages\install2019.wim'
-        DependsOn = '[cWDSInitialize]InitWDS'
+        DependsOn = '[cWDSInitialize]InitWDS','[File]install2019wim'
     }
 
     cWDSInstallImage server2016
@@ -92,7 +158,7 @@ configuration PullServerSQL
         ImageName = 'Windows Server 2016 SERVERSTANDARD'
         GroupName = 'Windows Server 2016'
         Path = 'c:\wdsimages\install2016.wim'
-        DependsOn = '[cWDSInitialize]InitWDS'
+        DependsOn = '[cWDSInitialize]InitWDS','[File]install2016wim'
     }
 
     cWDSInstallImage server2012r2
@@ -101,7 +167,7 @@ configuration PullServerSQL
         ImageName = 'Windows Server 2012 R2 SERVERSTANDARD'
         GroupName = 'Windows Server 2012R2'
         Path = 'c:\wdsimages\install2012r2.wim'
-        DependsOn = '[cWDSInitialize]InitWDS'
+        DependsOn = '[cWDSInitialize]InitWDS','[File]install2012r2wim'
     }
 
     cWDSInstallImage windows10
@@ -110,7 +176,14 @@ configuration PullServerSQL
         ImageName = 'Windows 10 Enterprise Evaluation'
         GroupName = 'Windows 10'
         Path = 'c:\wdsimages\installw10_19h2.wim'
-        DependsOn = '[cWDSInitialize]InitWDS'
+        DependsOn = '[cWDSInitialize]InitWDS','[File]installw10wim'
+    }
+
+    cWDSServerAnswer answerAll
+    {
+        Ensure = 'Present'
+        Answer = 'all'
+        DependsOn = '[cWDSInstallImage]windows10'
     }
 }
 
