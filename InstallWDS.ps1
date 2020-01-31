@@ -32,6 +32,8 @@ Import-WdsInstallImage -Path c:\wdsimages\install2012r2.wim -ImageName 'Windows 
    
 & wdsutil.exe /Set-Server /AnswerClients:All
 #>
+[Net.ServicePointManager]::SecurityProtocol='tls12,tls11,tls'
+Install-Module CertificateDsc -Force
 
 Copy-Item $sourcedirmodules\xPSDesiredStateConfiguration 'C:\Program Files\WindowsPowerShell\Modules' -Recurse -Force
 Copy-Item $sourcedirmodules\SqlServerDsc 'C:\Program Files\WindowsPowerShell\Modules' -Recurse -Force
