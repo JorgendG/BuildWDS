@@ -32,8 +32,16 @@ Import-WdsInstallImage -Path c:\wdsimages\install2012r2.wim -ImageName 'Windows 
    
 & wdsutil.exe /Set-Server /AnswerClients:All
 #>
-[Net.ServicePointManager]::SecurityProtocol='tls12,tls11,tls'
-Install-Module CertificateDsc -Force
+#[Net.ServicePointManager]::SecurityProtocol='tls12,tls11,tls'
+#Install-Module CertificateDsc -Force
+# Argh, install-module klapt eruit omdat er nog geen default profiel is
+# $env:LOCALAPPDATA is namelijk leeg
+# powershellget versie 2.2.3
+# Lelijke workaround, kopieer modules van een lokale bron
+# lelijk omdat er dan geen versiebeheer is, install-module pakt de laatste versie online
+# Oplossing?
+# Onderstaande code via een eenmalige(?) scheduled task uitvoeren die heel snel volgt op het huidige moment. Als setupcomplete.cmd is 
+# afgerond is er vast een default profile waardoor install-module wel werkt
 
 Copy-Item $sourcedirmodules\xPSDesiredStateConfiguration 'C:\Program Files\WindowsPowerShell\Modules' -Recurse -Force
 Copy-Item $sourcedirmodules\SqlServerDsc 'C:\Program Files\WindowsPowerShell\Modules' -Recurse -Force
