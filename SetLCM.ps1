@@ -4,6 +4,8 @@ $config = ($regvalue.VirtualMachineName -split ':')[1]
 configuration lcm {
     Settings {
         RefreshMode = 'Pull'
+        RebootNodeIfNeeded = $true
+        ConfigurationMode = 'ApplyAndAutoCorrect'
     }
 
     ConfigurationRepositoryWeb SQLPullWeb {
