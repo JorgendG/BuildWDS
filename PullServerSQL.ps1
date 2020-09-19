@@ -1,5 +1,11 @@
+
+
+
 configuration PullServerSQL 
 {
+    $sourcewim = '\\nasje\public\wim'
+    $sourcesql = '\\nasje\public\sql\2017express'
+
     Import-DscResource -ModuleName PSDesiredStateConfiguration
     Import-DscResource -ModuleName xPSDesiredStateConfiguration
     Import-DscResource -ModuleName SqlServerDsc
@@ -26,12 +32,18 @@ configuration PullServerSQL
         Ensure = 'Present'
     }
 
+    WindowsFeature 'Containers'
+    {
+        Name   = 'Containers'
+        Ensure = 'Present'
+    }
+
     SqlSetup SqlExpress
     {
         InstanceName           = 'SQLEXPRESS'
         Features               = 'SQLENGINE'
         SQLSysAdminAccounts    = 'BUILTIN\Administrators', 'NT AUTHORITY\SYSTEM'
-        SourcePath             = '\\nasje\public\sql\2017express'
+        SourcePath             = $sourcesql
         UpdateEnabled          = 'False'
         ForceReboot            = $false
         DependsOn            = '[WindowsFeature]NetFramework45'
@@ -82,7 +94,7 @@ configuration PullServerSQL
     {
         Ensure = 'Present'
         Type = 'File'
-        SourcePath = '\\nasje\public\wim\boot.wim'
+        SourcePath = "$sourcewim\boot.wim"
         DestinationPath = 'c:\wdsimages\boot.wim'
         DependsOn = '[File]wdsimagesfolder'
         MatchSource = $false
@@ -92,7 +104,7 @@ configuration PullServerSQL
     {
         Ensure = 'Present'
         Type = 'File'
-        SourcePath = '\\nasje\public\wim\install2019.wim'
+        SourcePath = "'$sourcewim\install2019.wim"
         DestinationPath = 'c:\wdsimages\install2019.wim'
         DependsOn = '[File]wdsimagesfolder'
         MatchSource = $false
@@ -103,7 +115,7 @@ configuration PullServerSQL
     {
         Ensure = 'Present'
         Type = 'File'
-        SourcePath = '\\nasje\public\wim\install2016.wim'
+        SourcePath = "$sourcewim\install2016.wim"
         DestinationPath = 'c:\wdsimages\install2016.wim'
         DependsOn = '[File]wdsimagesfolder'
         MatchSource = $false
@@ -113,7 +125,7 @@ configuration PullServerSQL
     {
         Ensure = 'Present'
         Type = 'File'
-        SourcePath = '\\nasje\public\wim\install2012r2.wim'
+        SourcePath = "$sourcewim\install2012r2.wim"
         DestinationPath = 'c:\wdsimages\install2012r2.wim'
         DependsOn = '[File]wdsimagesfolder'
         MatchSource = $false
@@ -123,7 +135,7 @@ configuration PullServerSQL
     {
         Ensure = 'Present'
         Type = 'File'
-        SourcePath = '\\nasje\public\wim\installw10_19h2.wim'
+        SourcePath = "$sourcewim\installw10_19h2.wim"
         DestinationPath = 'c:\wdsimages\installw10_19h2.wim'
         DependsOn = '[File]wdsimagesfolder'
     }
@@ -184,6 +196,25 @@ configuration PullServerSQL
         Ensure = 'Present'
         Answer = 'all'
         DependsOn = '[cWDSInstallImage]windows10'
+    }
+
+    Script DockerService {
+        SetScript = {
+            Install-Module DockerMsftProvider -Force
+            Install-Package Docker -ProviderName DockerMsftProvider -Force
+        }
+        GetScript = {
+            return @{
+                'Service' = (Get-Service -Name Docker).Name
+            }
+        }
+        TestScript = {
+            if (Get-Service -Name Docker -ErrorAction SilentlyContinue) {
+                return $True
+            }
+            return $False
+        }
+        DependsOn = '[windowsfeature]containers'
     }
 }
 
