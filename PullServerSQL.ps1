@@ -8,6 +8,7 @@ configuration PullServerSQL
 
     Import-DscResource -ModuleName PSDesiredStateConfiguration
     Import-DscResource -ModuleName xPSDesiredStateConfiguration
+    Import-DscResource -ModuleName xPendingReboot
     Import-DscResource -ModuleName SqlServerDsc
     Import-DscResource -ModuleName cWDS
     

@@ -46,6 +46,7 @@ Import-WdsInstallImage -Path c:\wdsimages\install2012r2.wim -ImageName 'Windows 
 Copy-Item $sourcedirmodules\xPSDesiredStateConfiguration 'C:\Program Files\WindowsPowerShell\Modules' -Recurse -Force
 Copy-Item $sourcedirmodules\SqlServerDsc 'C:\Program Files\WindowsPowerShell\Modules' -Recurse -Force
 Copy-Item $sourcedirmodules\cWDS 'C:\Program Files\WindowsPowerShell\Modules' -Recurse -Force
+Copy-Item $sourcedirmodules\xPendingReboot 'C:\Program Files\WindowsPowerShell\Modules' -Recurse -Force
 
 Install-PackageProvider -Name "Nuget" -Force
 Register-PackageSource -Name chocolatey -Location http://chocolatey.org/api/v2 -ProviderName NuGet -Trusted -Verbose
