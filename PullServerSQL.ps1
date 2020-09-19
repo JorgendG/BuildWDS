@@ -38,6 +38,11 @@ configuration PullServerSQL
         Ensure = 'Present'
     }
 
+    xPendingReboot Reboot 
+    {
+	    Name = "Reboot After Containers"
+	}
+    <#
     SqlSetup SqlExpress
     {
         InstanceName           = 'SQLEXPRESS'
@@ -48,7 +53,7 @@ configuration PullServerSQL
         ForceReboot            = $false
         DependsOn            = '[WindowsFeature]NetFramework45'
     }
-
+#>
     xDscWebService PSDSCPullServer 
     {
         Ensure                       = 'Present'
@@ -90,6 +95,7 @@ configuration PullServerSQL
         Force = $true
     }
 
+    <#
     File bootwim
     {
         Ensure = 'Present'
@@ -139,14 +145,14 @@ configuration PullServerSQL
         DestinationPath = 'c:\wdsimages\installw10_19h2.wim'
         DependsOn = '[File]wdsimagesfolder'
     }
-
+#>
     cWDSInitialize InitWDS
     {
         Ensure = 'Present'
         RootFolder = "c:\remoteinstall"
         DependsOn = '[WindowsFeature]WDS'
     }
-
+<#
     cWDSInstallImage bootimage
     {
         Ensure = 'Present'
@@ -190,7 +196,7 @@ configuration PullServerSQL
         Path = 'c:\wdsimages\installw10_19h2.wim'
         DependsOn = '[cWDSInitialize]InitWDS','[File]installw10wim'
     }
-
+#>
     cWDSServerAnswer answerAll
     {
         Ensure = 'Present'
@@ -215,6 +221,13 @@ configuration PullServerSQL
             return $False
         }
         DependsOn = '[windowsfeature]containers'
+    }
+
+    Service DockerService{
+        Name = 'Docker'
+        State = 'Running'
+        Ensure = 'Present'
+        DependsOn = '[Script]DockerService'
     }
 }
 
