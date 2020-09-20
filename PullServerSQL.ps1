@@ -232,5 +232,39 @@ configuration PullServerSQL
     }
 }
 
+
+# Configure the LCM
+Configuration ConfigureLCM {
+    Node $AllNodes.NodeName {
+         LocalConfigurationManager {
+             RebootNodeIfNeeded = $true
+             RefreshMode = 'Push'
+             ConfigurationMode = 'ApplyAndAutoCorrect'
+         ActionAfterReboot = 'ContinueConfiguration'
+         }
+     }
+ }
+ 
+ # Configuration Data
+ $ConfigData = @{
+       AllNodes = @(
+             @{
+                   NodeName                    = 'localhost'
+             }
+       )
+ }
+ 
+ # Compile the LCM Config
+ ConfigureLCM `
+       -OutputPath . `
+       -ConfigurationData $ConfigData
+ 
+ # Apply the LCM Config
+ Set-DscLocalConfigurationManager `
+       -Path .\ConfigureLCM\ `
+       -ComputerName Localhost `
+       -Verbose
+ 
+
 PullServerSQL
 Start-DscConfiguration -Path .\PullServerSQL -Verbose -wait -Force
