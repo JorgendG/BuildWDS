@@ -202,7 +202,7 @@ configuration PullServerSQL
     {
         Ensure = 'Present'
         Answer = 'all'
-        DependsOn = '[cWDSInstallImage]windows10'
+        DependsOn = '[cWDSInitialize]InitWDS'
     }
 
     Script DockerService {
