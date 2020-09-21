@@ -34,7 +34,7 @@ if( $win32cs.Manufacturer -eq 'Xen')
 {
     $MSIArguments = @(
         "/i"
-        ('"{0}"' -f "$sourcediragents\managementagentx64.msi")
+        ('"{0}"' -f "c:\windows\temp\managementagentx64.msi")
         "/qn"
         "/norestart"
     )
