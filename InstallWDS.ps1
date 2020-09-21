@@ -28,7 +28,7 @@ Install-Package -Name sql-server-management-studio -ProviderName chocolatey -for
 
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize" -Value 2
 
-$win32cs = Get-WmiObject –query 'select * from Win32_ComputerSystem'
+$win32cs = Get-WmiObject -query 'select * from Win32_ComputerSystem'
 
 if( $win32cs.Manufacturer -eq 'Xen')
 {
