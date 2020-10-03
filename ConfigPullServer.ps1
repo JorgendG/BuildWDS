@@ -108,7 +108,7 @@ configuration PullServerSQL
     {
         Ensure = 'Present'
         Type = 'File'
-        SourcePath = "'$sourcewim\install2019.wim"
+        SourcePath = "$sourcewim\install2019.wim"
         DestinationPath = 'c:\wdsimages\install2019.wim'
         DependsOn = '[File]wdsimagesfolder'
         MatchSource = $false
