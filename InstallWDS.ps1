@@ -205,6 +205,10 @@ $xmlunattend.Save( "c:\windows\temp\unattend.xml" )
 
 Invoke-WebRequest -Uri https://github.com/JorgendG/BuildWDS/raw/master/PullServerSQL.ps1 -OutFile C:\Windows\Temp\PullServerSQL.ps1
 Invoke-WebRequest -Uri https://github.com/JorgendG/BuildWDS/raw/master/ConfigPullServer.ps1 -OutFile C:\Windows\Temp\ConfigPullServer.ps1
+Invoke-WebRequest -Uri https://github.com/JorgendG/BuildWDS/raw/master/DscPrivatePublicKey.pfx -OutFile C:\Windows\Temp\DscPrivatePublicKey.pfx
+
+$mypwd = ConvertTo-SecureString -String "1234" -Force -AsPlainText
+Import-PfxCertificate -FilePath C:\Windows\Temp\DscPrivatePublicKey.pfx -Password $mypwd
 
 $taskName = "PullServerSQL"
 $task = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
