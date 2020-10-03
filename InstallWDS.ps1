@@ -16,15 +16,15 @@ $sourcediragents = "\\nasje\public\agents"
 # Onderstaande code via een eenmalige(?) scheduled task uitvoeren die heel snel volgt op het huidige moment. Als setupcomplete.cmd is 
 # afgerond is er vast een default profile waardoor install-module wel werkt
 
-Copy-Item $sourcedirmodules\xPSDesiredStateConfiguration 'C:\Program Files\WindowsPowerShell\Modules' -Recurse -Force
-Copy-Item $sourcedirmodules\SqlServerDsc 'C:\Program Files\WindowsPowerShell\Modules' -Recurse -Force
+#Copy-Item $sourcedirmodules\xPSDesiredStateConfiguration 'C:\Program Files\WindowsPowerShell\Modules' -Recurse -Force
+#Copy-Item $sourcedirmodules\SqlServerDsc 'C:\Program Files\WindowsPowerShell\Modules' -Recurse -Force
 Copy-Item $sourcedirmodules\cWDS 'C:\Program Files\WindowsPowerShell\Modules' -Recurse -Force
-Copy-Item $sourcedirmodules\xPendingReboot 'C:\Program Files\WindowsPowerShell\Modules' -Recurse -Force
+#Copy-Item $sourcedirmodules\xPendingReboot 'C:\Program Files\WindowsPowerShell\Modules' -Recurse -Force
 Copy-Item $sourcediragents\managementagentx64.msi 'C:\Windows\Temp' -Recurse -Force
 
-Install-PackageProvider -Name "Nuget" -Force
-Register-PackageSource -Name chocolatey -Location http://chocolatey.org/api/v2 -ProviderName NuGet -Trusted -Verbose
-Install-Package -Name sql-server-management-studio -ProviderName chocolatey -force
+#Install-PackageProvider -Name "Nuget" -Force
+#Register-PackageSource -Name chocolatey -Location http://chocolatey.org/api/v2 -ProviderName NuGet -Trusted -Verbose
+#Install-Package -Name sql-server-management-studio -ProviderName chocolatey -force
 
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize" -Value 2
 
@@ -201,14 +201,38 @@ $winpe.component.Where( {$_.name -eq 'Microsoft-Windows-Setup'} ).WindowsDeploym
 $winpe.component.Where( {$_.name -eq 'Microsoft-Windows-Setup'} ).WindowsDeploymentServices.Login.Credentials.Password = '12wq!@WQ'
 $winpe.component.Where( {$_.name -eq 'Microsoft-Windows-Setup'} ).WindowsDeploymentServices.Login.Credentials.Domain = 'wds01'
 
-#$imagedetail = $this.GetImages().Where( { $_.Name -eq $image } )
-#$winpe.component.Where( {$_.name -eq 'Microsoft-Windows-Setup'} ).WindowsDeploymentServices.ImageSelection.InstallImage.ImageName = $image
-#$winpe.component.Where( {$_.name -eq 'Microsoft-Windows-Setup'} ).WindowsDeploymentServices.ImageSelection.InstallImage.ImageGroup = $imagedetail.ImageGroup
-
-#$spec = $xml.unattend.settings | where{ $_.pass -eq 'specialize' }
-#$spec.component.Where( {$_.name -eq 'Microsoft-Windows-Shell-Setup'} )[0].ComputerName = $vmname
-
 $xmlunattend.Save( "c:\windows\temp\unattend.xml" )
 
-Invoke-WebRequest -Uri https://github.com/JorgendG/BuildWDS/raw/master/PullServerSQL.ps1 -OutFile $env:TEMP\PullServerSQL.ps1
-& $env:TEMP\PullServerSQL.ps1
+Invoke-WebRequest -Uri https://github.com/JorgendG/BuildWDS/raw/master/PullServerSQL.ps1 -OutFile C:\Windows\Temp\PullServerSQL.ps1
+
+$taskName = "PullServerSQL"
+$task = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
+if ($null -ne $task)
+{
+    Unregister-ScheduledTask -TaskName $taskName -Confirm:$false 
+}
+
+# TODO: EDIT THIS STUFF AS NEEDED...
+$action = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument '-File "C:\windows\temp\PullServerSQL.ps1"'
+$trigger = New-ScheduledTaskTrigger -AtStartup
+$settings = New-ScheduledTaskSettingsSet -Compatibility Win8
+
+$principal = New-ScheduledTaskPrincipal -UserId SYSTEM -LogonType ServiceAccount -RunLevel Highest
+
+$definition = New-ScheduledTask -Action $action -Principal $principal -Trigger $trigger -Settings $settings -Description "Run $($taskName) at startup"
+
+Register-ScheduledTask -TaskName $taskName -InputObject $definition
+
+$task = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
+
+# TODO: LOG AS NEEDED...
+if ($null -ne $task)
+{
+    Write-Output "Created scheduled task: '$($task.ToString())'."
+}
+else
+{
+    Write-Output "Created scheduled task: FAILED."
+}
+
+#& $env:TEMP\PullServerSQL.ps1

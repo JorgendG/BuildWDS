@@ -1,4 +1,11 @@
+Install-PackageProvider -Name "Nuget" -Force
 
+Install-Module xPSDesiredStateConfiguration -Force
+Install-Module xPendingReboot -Force
+Install-Module SqlServerDsc -Force
+
+Register-PackageSource -Name chocolatey -Location http://chocolatey.org/api/v2 -ProviderName NuGet -Trusted -Verbose
+Install-Package -Name sql-server-management-studio -ProviderName chocolatey -force
 
 
 configuration PullServerSQL 
@@ -43,7 +50,7 @@ configuration PullServerSQL
     {
 	    Name = "Reboot After Containers"
 	}
-    <#
+    
     SqlSetup SqlExpress
     {
         InstanceName           = 'SQLEXPRESS'
@@ -54,7 +61,7 @@ configuration PullServerSQL
         ForceReboot            = $false
         DependsOn            = '[WindowsFeature]NetFramework45'
     }
-#>
+
     xDscWebService PSDSCPullServer 
     {
         Ensure                       = 'Present'
@@ -96,7 +103,6 @@ configuration PullServerSQL
         Force = $true
     }
 
-    <#
     File bootwim
     {
         Ensure = 'Present'
@@ -146,14 +152,14 @@ configuration PullServerSQL
         DestinationPath = 'c:\wdsimages\installw10_19h2.wim'
         DependsOn = '[File]wdsimagesfolder'
     }
-#>
+
     cWDSInitialize InitWDS
     {
         Ensure = 'Present'
         RootFolder = "c:\remoteinstall"
         DependsOn = '[WindowsFeature]WDS'
     }
-<#
+
     cWDSInstallImage bootimage
     {
         Ensure = 'Present'
@@ -197,7 +203,7 @@ configuration PullServerSQL
         Path = 'c:\wdsimages\installw10_19h2.wim'
         DependsOn = '[cWDSInitialize]InitWDS','[File]installw10wim'
     }
-#>
+
     cWDSServerAnswer answerAll
     {
         Ensure = 'Present'
