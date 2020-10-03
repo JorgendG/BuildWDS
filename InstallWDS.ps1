@@ -204,6 +204,7 @@ $winpe.component.Where( {$_.name -eq 'Microsoft-Windows-Setup'} ).WindowsDeploym
 $xmlunattend.Save( "c:\windows\temp\unattend.xml" )
 
 Invoke-WebRequest -Uri https://github.com/JorgendG/BuildWDS/raw/master/PullServerSQL.ps1 -OutFile C:\Windows\Temp\PullServerSQL.ps1
+Invoke-WebRequest -Uri https://github.com/JorgendG/BuildWDS/raw/master/ConfigPullServer.ps1 -OutFile C:\Windows\Temp\ConfigPullServer.ps1
 
 $taskName = "PullServerSQL"
 $task = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
@@ -236,3 +237,5 @@ else
 }
 
 #& $env:TEMP\PullServerSQL.ps1
+
+shutdown.exe /r /t 5
