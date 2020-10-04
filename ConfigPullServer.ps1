@@ -59,12 +59,14 @@ configuration PullServerSQL
         EndpointName                 = 'PSDSCPullServer'
         Port                         = 8080
         PhysicalPath                 = "$env:SystemDrive\inetpub\PSDSCPullServer"
-        CertificateThumbPrint        = 'AllowUnencryptedTraffic'
+        CertificateThumbPrint        = '05DAA37D7A0013E346DC0FD0350DA79C3193A4AB'
+        CertificateSubject           = 'DscEncryptionCert'
         ModulePath                   = "c:\pullserver\Modules"
         ConfigurationPath            = "c:\pullserver\Configuration"
         State                        = 'Started'
         RegistrationKeyPath          = "c:\pullserver"
-        UseSecurityBestPractices     = $false
+        UseSecurityBestPractices     = $true
+        AcceptSelfSignedCertificates = $true
         SqlProvider                  = $true
         SqlConnectionString          = 'Provider=SQLOLEDB.1;Server=.\sqlexpress;Database=DemoDSC;Integrated Security=SSPI;Initial Catalog=master;'
         DependsOn                    = '[File]PullServerFiles', '[WindowsFeature]dscservice', '[SqlSetup]SqlExpress'
@@ -234,10 +236,10 @@ configuration PullServerSQL
 Configuration ConfigureLCM {
     Node $AllNodes.NodeName {
          LocalConfigurationManager {
-             RebootNodeIfNeeded = $true
-             RefreshMode = 'Push'
-             ConfigurationMode = 'ApplyAndAutoCorrect'
-         ActionAfterReboot = 'ContinueConfiguration'
+            RebootNodeIfNeeded = $true
+            RefreshMode = 'Push'
+            ConfigurationMode = 'ApplyAndAutoCorrect'
+            ActionAfterReboot = 'ContinueConfiguration'
          }
      }
  }
