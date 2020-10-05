@@ -171,6 +171,27 @@ configuration PullServerSQL
         DependsOn = '[cWDSInitialize]InitWDS','[File]install2019wim'
     }
 
+    Script Unattend2019
+    {
+        SetScript = {
+            [xml]$xml = Get-Content C:\windows\temp\unattend.xml
+            $winpe = $xml.unattend.settings | Where-Object{ $_.pass -eq 'windowsPE' }
+            $winpe.component.Where( {$_.name -eq 'Microsoft-Windows-Setup'} ).WindowsDeploymentServices.ImageSelection.InstallImage.ImageName = 'Windows Server 2019 SERVERSTANDARD'
+            $winpe.component.Where( {$_.name -eq 'Microsoft-Windows-Setup'} ).WindowsDeploymentServices.ImageSelection.InstallImage.ImageGroup = 'Windows Server 2019'
+            $xml.Save( 'C:\remoteinstall\WdsClientUnattend\install2019.xml' )
+
+        }
+        GetScript = {
+            return @{
+                'Service' = 'C:\remoteinstall\WdsClientUnattend\install2019.xml'
+            }
+        }
+        TestScript = {
+            return (Test-Path 'C:\remoteinstall\WdsClientUnattend\install2019.xml')
+        }
+        DependsOn = '[cWDSInstallImage]server2019'
+    }
+
     cWDSInstallImage server2016
     {
         Ensure = 'Present'
@@ -178,6 +199,27 @@ configuration PullServerSQL
         GroupName = 'Windows Server 2016'
         Path = 'c:\wdsimages\install2016.wim'
         DependsOn = '[cWDSInitialize]InitWDS','[File]install2016wim'
+    }
+
+    Script Unattend2016
+    {
+        SetScript = {
+            [xml]$xml = Get-Content C:\windows\temp\unattend.xml
+            $winpe = $xml.unattend.settings | Where-Object{ $_.pass -eq 'windowsPE' }
+            $winpe.component.Where( {$_.name -eq 'Microsoft-Windows-Setup'} ).WindowsDeploymentServices.ImageSelection.InstallImage.ImageName = 'Windows Server 2016 SERVERSTANDARD'
+            $winpe.component.Where( {$_.name -eq 'Microsoft-Windows-Setup'} ).WindowsDeploymentServices.ImageSelection.InstallImage.ImageGroup = 'Windows Server 2016'
+            $xml.Save( 'C:\remoteinstall\WdsClientUnattend\install2016.xml' )
+
+        }
+        GetScript = {
+            return @{
+                'Service' = 'C:\remoteinstall\WdsClientUnattend\install2016.xml'
+            }
+        }
+        TestScript = {
+            return (Test-Path 'C:\remoteinstall\WdsClientUnattend\install2016.xml')
+        }
+        DependsOn = '[cWDSInstallImage]server2016'
     }
 
     cWDSInstallImage server2012r2
@@ -189,6 +231,27 @@ configuration PullServerSQL
         DependsOn = '[cWDSInitialize]InitWDS','[File]install2012r2wim'
     }
 
+    Script Unattend2012r2
+    {
+        SetScript = {
+            [xml]$xml = Get-Content C:\windows\temp\unattend.xml
+            $winpe = $xml.unattend.settings | Where-Object{ $_.pass -eq 'windowsPE' }
+            $winpe.component.Where( {$_.name -eq 'Microsoft-Windows-Setup'} ).WindowsDeploymentServices.ImageSelection.InstallImage.ImageName = 'Windows Server 2012 R2 SERVERSTANDARD'
+            $winpe.component.Where( {$_.name -eq 'Microsoft-Windows-Setup'} ).WindowsDeploymentServices.ImageSelection.InstallImage.ImageGroup = 'Windows Server 2012R2'
+            $xml.Save( 'C:\remoteinstall\WdsClientUnattend\install2012r2.xml' )
+
+        }
+        GetScript = {
+            return @{
+                'Service' = 'C:\remoteinstall\WdsClientUnattend\install2012r2.xml'
+            }
+        }
+        TestScript = {
+            return (Test-Path 'C:\remoteinstall\WdsClientUnattend\install2012r2.xml')
+        }
+        DependsOn = '[cWDSInstallImage]server2012r2'
+    }
+
     cWDSInstallImage windows10
     {
         Ensure = 'Present'
@@ -196,6 +259,27 @@ configuration PullServerSQL
         GroupName = 'Windows 10'
         Path = 'c:\wdsimages\installw10_19h2.wim'
         DependsOn = '[cWDSInitialize]InitWDS','[File]installw10wim'
+    }
+
+    Script Unattendwin10
+    {
+        SetScript = {
+            [xml]$xml = Get-Content C:\windows\temp\unattend.xml
+            $winpe = $xml.unattend.settings | Where-Object{ $_.pass -eq 'windowsPE' }
+            $winpe.component.Where( {$_.name -eq 'Microsoft-Windows-Setup'} ).WindowsDeploymentServices.ImageSelection.InstallImage.ImageName = 'Windows 10 Enterprise Evaluation'
+            $winpe.component.Where( {$_.name -eq 'Microsoft-Windows-Setup'} ).WindowsDeploymentServices.ImageSelection.InstallImage.ImageGroup = 'Windows 10'
+            $xml.Save( 'C:\remoteinstall\WdsClientUnattend\installwin10.xml' )
+
+        }
+        GetScript = {
+            return @{
+                'Service' = 'C:\remoteinstall\WdsClientUnattend\installwin10.xml'
+            }
+        }
+        TestScript = {
+            return (Test-Path 'C:\remoteinstall\WdsClientUnattend\installwin10.xml')
+        }
+        DependsOn = '[cWDSInstallImage]windows10'
     }
 
     cWDSServerAnswer answerAll

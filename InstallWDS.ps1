@@ -176,7 +176,7 @@ $xmlunattend = [xml]'<unattend xmlns="urn:schemas-microsoft-com:unattend">
                 <component name="Microsoft-Windows-Deployment" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                     <RunSynchronous>
                         <RunSynchronousCommand wcm:action="add">
-                            <Path>cmd /c echo powershell.exe -command &quot;&amp; {  wget -uri &apos;https://github.com/JorgendG/BuildWDS/raw/master/InstallWDS.ps1&apos; -OutFile &apos;c:\windows\temp\script.ps1&apos; }&quot; &gt;&gt; c:\windows\temp\setupcomplete.txt</Path>
+                            <Path>cmd /c echo powershell.exe -command &quot;&amp; {  wget -uri &apos;https://github.com/JorgendG/BuildWDS/raw/master/SetLCM.ps1&apos; -OutFile &apos;c:\windows\temp\script.ps1&apos; }&quot; &gt;&gt; c:\windows\temp\setupcomplete.txt</Path>
                             <Order>5</Order>
                         </RunSynchronousCommand>
                         <RunSynchronousCommand wcm:action="add">
