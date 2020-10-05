@@ -1,3 +1,4 @@
+$sslcert = New-SelfSignedCertificate -DnsName "wds01", "wds01.homelab.local" -CertStoreLocation "cert:\LocalMachine\My"
 
 configuration PullServerSQL 
 {
@@ -39,7 +40,8 @@ configuration PullServerSQL
 
     xPendingReboot Reboot 
     {
-	    Name = "Reboot After Containers"
+        Name             = "Reboot After Containers"
+        SkipCcmClientSDK = $true 
 	}
     
     SqlSetup SqlExpress
@@ -50,7 +52,7 @@ configuration PullServerSQL
         SourcePath             = $sourcesql
         UpdateEnabled          = 'False'
         ForceReboot            = $false
-        DependsOn            = '[WindowsFeature]NetFramework45'
+        DependsOn              = '[WindowsFeature]NetFramework45'
     }
 
     xDscWebService PSDSCPullServer 
@@ -59,8 +61,7 @@ configuration PullServerSQL
         EndpointName                 = 'PSDSCPullServer'
         Port                         = 8080
         PhysicalPath                 = "$env:SystemDrive\inetpub\PSDSCPullServer"
-        CertificateThumbPrint        = '05DAA37D7A0013E346DC0FD0350DA79C3193A4AB'
-        CertificateSubject           = 'DscEncryptionCert'
+        CertificateThumbPrint        = $sslcert.Thumbprint #'05DAA37D7A0013E346DC0FD0350DA79C3193A4AB'
         ModulePath                   = "c:\pullserver\Modules"
         ConfigurationPath            = "c:\pullserver\Configuration"
         State                        = 'Started'
