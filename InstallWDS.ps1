@@ -222,6 +222,7 @@ Invoke-WebRequest -Uri https://github.com/JorgendG/BuildWDS/raw/master/DscPrivat
 $mypwd = ConvertTo-SecureString -String "1234" -Force -AsPlainText
 Import-PfxCertificate -FilePath C:\Windows\Temp\DscPrivatePublicKey.pfx -Password $mypwd -CertStoreLocation Cert:\LocalMachine\My
 
+# https://xplantefeve.io/posts/SchdTskOnEvent
 $taskName = "PullServerSQL"
 $task = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
 if ($null -ne $task)

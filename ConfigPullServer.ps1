@@ -36,6 +36,7 @@ configuration PullServerSQL
     {
         Name   = 'Containers'
         Ensure = 'Present'
+        LogPath = 'c:\pullserver'
     }
 
     xPendingReboot Reboot 
