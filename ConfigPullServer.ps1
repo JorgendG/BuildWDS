@@ -36,7 +36,7 @@ configuration PullServerSQL
     {
         Name   = 'Containers'
         Ensure = 'Present'
-        LogPath = 'c:\pullserver'
+        LogPath = 'c:\windows\temp\containerfeature.txt'
     }
 
     xPendingReboot Reboot 
