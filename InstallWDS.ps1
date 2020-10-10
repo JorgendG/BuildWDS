@@ -2,7 +2,6 @@
 # oscdimg.exe -m -o -u2 -udfver102 -bootdata:2#p0,e,bc:\temp\iso\boot\etfsboot.com#pEF,e,bc:\temp\iso\efi\microsoft\boot\efisys.bin c:\temp\iso c:\temp\wds01.iso
 start-transcript -path c:\windows\temp\installwds.txt
 
-$sourcedirmodules = "\\nasje\public\modules"
 $sourcediragents = "\\nasje\public\agents"
 
 #[Net.ServicePointManager]::SecurityProtocol='tls12,tls11,tls'
@@ -18,7 +17,7 @@ $sourcediragents = "\\nasje\public\agents"
 
 #Copy-Item $sourcedirmodules\xPSDesiredStateConfiguration 'C:\Program Files\WindowsPowerShell\Modules' -Recurse -Force
 #Copy-Item $sourcedirmodules\SqlServerDsc 'C:\Program Files\WindowsPowerShell\Modules' -Recurse -Force
-Copy-Item $sourcedirmodules\cWDS 'C:\Program Files\WindowsPowerShell\Modules' -Recurse -Force
+#Copy-Item $sourcedirmodules\cWDS 'C:\Program Files\WindowsPowerShell\Modules' -Recurse -Force
 #Copy-Item $sourcedirmodules\xPendingReboot 'C:\Program Files\WindowsPowerShell\Modules' -Recurse -Force
 Copy-Item $sourcediragents\managementagentx64.msi 'C:\Windows\Temp' -Recurse -Force
 
@@ -218,6 +217,10 @@ $xmlunattend.Save( "c:\windows\temp\unattend.xml" )
 Invoke-WebRequest -Uri https://github.com/JorgendG/BuildWDS/raw/master/PullServerSQL.ps1 -OutFile C:\Windows\Temp\PullServerSQL.ps1
 Invoke-WebRequest -Uri https://github.com/JorgendG/BuildWDS/raw/master/ConfigPullServer.ps1 -OutFile C:\Windows\Temp\ConfigPullServer.ps1
 Invoke-WebRequest -Uri https://github.com/JorgendG/BuildWDS/raw/master/DscPrivatePublicKey.pfx -OutFile C:\Windows\Temp\DscPrivatePublicKey.pfx
+
+New-Item -Path 'C:\Program Files\WindowsPowerShell\Modules\cWDS' -ItemType Directory
+Invoke-WebRequest -Uri https://github.com/JorgendG/cWDS/raw/master/cWDS.psd1 -OutFile 'C:\Program Files\WindowsPowerShell\Modules\cWDS\cWDS.psd1'
+Invoke-WebRequest -Uri https://github.com/JorgendG/cWDS/raw/master/cWDS.psm1 -OutFile 'C:\Program Files\WindowsPowerShell\Modules\cWDS\cWDS.psm1'
 
 $mypwd = ConvertTo-SecureString -String "1234" -Force -AsPlainText
 Import-PfxCertificate -FilePath C:\Windows\Temp\DscPrivatePublicKey.pfx -Password $mypwd -CertStoreLocation Cert:\LocalMachine\My
