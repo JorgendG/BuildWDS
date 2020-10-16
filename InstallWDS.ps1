@@ -175,12 +175,16 @@ $xmlunattend = [xml]'<unattend xmlns="urn:schemas-microsoft-com:unattend">
                 <component name="Microsoft-Windows-Deployment" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                     <RunSynchronous>
                         <RunSynchronousCommand wcm:action="add">
-                            <Path>cmd /c echo powershell.exe -command &quot;&amp; {  wget -uri &apos;https://github.com/JorgendG/BuildWDS/raw/master/SetLCM.ps1&apos; -OutFile &apos;c:\windows\temp\script.ps1&apos; }&quot; &gt;&gt; C:\Windows\Setup\Scripts\setupcomplete.cmd</Path>
+                            <Path>cmd /c md c:\windows\setup\scripts</Path>
                             <Order>1</Order>
+                            </RunSynchronousCommand>
+                        <RunSynchronousCommand wcm:action="add">
+                            <Path>cmd /c echo powershell.exe -command &quot;&amp; {invoke-webrequest -uri &apos;https://github.com/JorgendG/BuildWDS/raw/master/SetLCM.ps1&apos; -OutFile &apos;c:\windows\temp\script.ps1&apos; }&quot; &gt; c:\windows\setup\scripts\setupcomplete.cmd</Path>
+                            <Order>2</Order>
                         </RunSynchronousCommand>
                         <RunSynchronousCommand wcm:action="add">
-                            <Path>cmd /c echo powershell -file c:\windows\temp\script.ps1  &gt;&gt; C:\Windows\Setup\Scripts\setupcomplete.cmd</Path>
-                            <Order>2</Order>
+                            <Path>cmd /c echo powershell -file c:\windows\temp\script.ps1 &gt;&gt; c:\windows\setup\scripts\setupcomplete.cmd</Path>
+                            <Order>3</Order>
                         </RunSynchronousCommand>
                     </RunSynchronous>
                 </component>
