@@ -32,5 +32,6 @@ lcm -OutputPath C:\Windows\temp
 
 $newComputername = ($regvalue.VirtualMachineName -split ':')[0]
 Rename-Computer -NewName $newComputername -Force
+net user administrator /active:yes
 
 Set-DscLocalConfigurationManager c:\windows\temp -Verbose
