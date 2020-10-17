@@ -1,3 +1,5 @@
+Get-LocalUser -Name "Administrator" | Enable-LocalUser
+
 Invoke-WebRequest -Uri https://github.com/JorgendG/BuildWDS/raw/master/DscPrivatePublicKey.pfx -OutFile C:\Windows\Temp\DscPrivatePublicKey.pfx
 
 $mypwd = ConvertTo-SecureString -String "1234" -Force -AsPlainText
@@ -30,7 +32,7 @@ configuration lcm {
 
 lcm -OutputPath C:\Windows\temp
 
-Get-LocalUser -Name "Administrator" | Enable-LocalUser
+
 
 $newComputername = ($regvalue.VirtualMachineName -split ':')[0]
 Rename-Computer -NewName $newComputername -Force
