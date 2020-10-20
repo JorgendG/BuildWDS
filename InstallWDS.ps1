@@ -183,8 +183,16 @@ $xmlunattend = [xml]'<unattend xmlns="urn:schemas-microsoft-com:unattend">
                             <Order>2</Order>
                         </RunSynchronousCommand>
                         <RunSynchronousCommand wcm:action="add">
-                            <Path>cmd /c echo powershell -file c:\windows\temp\script.ps1 &gt;&gt; c:\windows\setup\scripts\setupcomplete.cmd</Path>
+                            <Path>cmd /c echo powershell.exe -command "&amp; {set-executionpolicy bypass -Force }" &gt;&gt; c:\windows\setup\scripts\setupcomplete.cmd</Path>
                             <Order>3</Order>
+                        </RunSynchronousCommand>
+                        <RunSynchronousCommand wcm:action="add">
+                            <Path>cmd /c echo powershell -file c:\windows\temp\script.ps1 &gt;&gt; c:\windows\setup\scripts\setupcomplete.cmd</Path>
+                            <Order>4</Order>
+                        </RunSynchronousCommand>
+                        <RunSynchronousCommand wcm:action="add">
+                            <Path>net user administrator /active:yes</Path>
+                            <Order>5</Order>
                         </RunSynchronousCommand>
                     </RunSynchronous>
                 </component>

@@ -45,7 +45,7 @@ configuration PullServerSQL
         SkipCcmClientSDK = $true 
 	}
     
-    SqlSetup SqlExpress
+    <#SqlSetup SqlExpress
     {
         InstanceName           = 'SQLEXPRESS'
         Features               = 'SQLENGINE'
@@ -54,7 +54,7 @@ configuration PullServerSQL
         UpdateEnabled          = 'False'
         ForceReboot            = $false
         DependsOn              = '[WindowsFeature]NetFramework45'
-    }
+    }#>
 
     xDscWebService PSDSCPullServer 
     {
@@ -69,9 +69,9 @@ configuration PullServerSQL
         RegistrationKeyPath          = "c:\pullserver"
         UseSecurityBestPractices     = $true
         AcceptSelfSignedCertificates = $true
-        SqlProvider                  = $true
-        SqlConnectionString          = 'Provider=SQLOLEDB.1;Server=.\sqlexpress;Database=DemoDSC;Integrated Security=SSPI;Initial Catalog=master;'
-        DependsOn                    = '[File]PullServerFiles', '[WindowsFeature]dscservice', '[SqlSetup]SqlExpress'
+        #SqlProvider                  = $true
+        #SqlConnectionString          = 'Provider=SQLOLEDB.1;Server=.\sqlexpress;Database=DemoDSC;Integrated Security=SSPI;Initial Catalog=master;'
+        DependsOn                    = '[File]PullServerFiles', '[WindowsFeature]dscservice'#, '[SqlSetup]SqlExpress'
     }
 
     File RegistrationKeyFile 
