@@ -4,6 +4,8 @@ Install-Module xPSDesiredStateConfiguration -Force
 Install-Module xPendingReboot -Force
 Install-Module SqlServerDsc -Force
 
+Get-Module xPendingReboot -ListAvailable | Publish-ModuleToPullServer -PullServerWebConfig "$env:SystemDrive\inetpub\PSDSCPullServer\web.config"
+
 #Register-PackageSource -Name chocolatey -Location http://chocolatey.org/api/v2 -ProviderName NuGet -Trusted -Verbose
 #Install-Package -Name sql-server-management-studio -ProviderName chocolatey -force
 
