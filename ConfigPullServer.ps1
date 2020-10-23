@@ -1,4 +1,7 @@
 $sslcert = New-SelfSignedCertificate -DnsName "wds01", "wds01.homelab.local" -CertStoreLocation "cert:\LocalMachine\My"
+$cert = Get-ChildItem -Path "Cert:\LocalMachine\My\$($sslcert.Thumbprint)"
+
+Export-Certificate -Cert $cert -FilePath C:\inetpub\wwwroot\wds01.cer.txt
 
 configuration PullServerSQL 
 {
