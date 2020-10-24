@@ -33,7 +33,9 @@ configuration CredentialEncryptionExample
         [PsCredential] $credential
     )
 
-    Import-DscResource –ModuleName 'PSDesiredStateConfiguration' 
+    Import-DscResource –ModuleName 'PSDesiredStateConfiguration'
+    Import-DscResource -ModuleName 'xPendingReboot'
+    Import-DscResource -ModuleName 'ComputerManagementDsc'
 
     Node 'CA'
     {
@@ -53,6 +55,20 @@ configuration CredentialEncryptionExample
             DestinationPath = "C:\testMember.txt"
             Credential = $credential
         }
+
+        xPendingReboot herstart
+        {
+            Name             = "Herstart"
+            SkipCcmClientSDK = $true 
+        }
+
+        Computer JoinDomain
+        {
+            Name       = 'localhost'
+            DomainName = 'homelab'
+            Credential = $Credential # Credential to join to domain
+        }
+
     }
 
     Node 'DC'
@@ -76,6 +92,6 @@ $mofs = CredentialEncryptionExample -credential $credential -ConfigurationData $
 foreach ($configMof in $Mofs)
 {
     $dest = "C:\pullserver\Configuration\$($configmof.name)"
-    copy $configMof.FullName $dest
+    Copy-Item $configMof.FullName $dest
     New-DSCChecksum $dest -Force
 }

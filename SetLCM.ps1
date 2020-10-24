@@ -14,6 +14,7 @@ $config = ($regvalue.VirtualMachineName -split ':')[1]
 configuration lcm {
     Settings {
         RefreshMode = 'Pull'
+        RefreshFrequencyMins = 15
         RebootNodeIfNeeded = $true
         ConfigurationMode = 'ApplyAndAutoCorrect'
         CertificateID = '05daa37d7a0013e346dc0fd0350da79c3193a4ab'

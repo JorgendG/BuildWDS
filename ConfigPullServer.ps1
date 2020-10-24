@@ -1,7 +1,7 @@
 $sslcert = New-SelfSignedCertificate -DnsName "wds01", "wds01.homelab.local" -CertStoreLocation "cert:\LocalMachine\My"
 $cert = Get-ChildItem -Path "Cert:\LocalMachine\My\$($sslcert.Thumbprint)"
 
-Export-Certificate -Cert $cert -FilePath C:\inetpub\wwwroot\wds01.cer.txt
+Export-Certificate -Cert $cert -FilePath C:\windows\temp\wds01.cer
 
 configuration PullServerSQL 
 {
@@ -84,6 +84,16 @@ configuration PullServerSQL
         DestinationPath = "c:\pullserver\RegistrationKeys.txt"
         Contents        = 'cb30127b-4b66-4f83-b207-c4801fb05087'
         DependsOn       = '[File]PullServerFiles'
+    }
+
+    File wdscert
+    {
+        Ensure = 'Present'
+        Type = 'File'
+        SourcePath = "C:\windows\temp\wds01.cer"
+        DestinationPath = 'c:\inetpub\wwwroot\wds01.cer.txt'
+        DependsOn = '[xDscWebService]PSDSCPullServer'
+        MatchSource = $false
     }
 
     WindowsFeature 'WDS'
