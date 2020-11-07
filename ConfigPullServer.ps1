@@ -1,7 +1,11 @@
-$sslcert = New-SelfSignedCertificate -DnsName "wds01", "wds01.homelab.local" -CertStoreLocation "cert:\LocalMachine\My"
-$cert = Get-ChildItem -Path "Cert:\LocalMachine\My\$($sslcert.Thumbprint)"
+$sslcert = Get-ChildItem -Path "Cert:\LocalMachine\My" | where { $_.Subject -eq 'CN=wds01' -and $_.Issuer -eq 'CN=wds01'  }
+if( $null -eq $sslcert )
+{
+    $sslcert = New-SelfSignedCertificate -DnsName "wds01", "wds01.homelab.local" -CertStoreLocation "cert:\LocalMachine\My"
+    $cert = Get-ChildItem -Path "Cert:\LocalMachine\My\$($sslcert.Thumbprint)"
 
-Export-Certificate -Cert $cert -FilePath C:\windows\temp\wds01.cer
+    Export-Certificate -Cert $cert -FilePath C:\windows\temp\wds01.cer
+}
 
 configuration PullServerSQL 
 {
@@ -35,12 +39,12 @@ configuration PullServerSQL
         Ensure = 'Present'
     }
 
-    WindowsFeature 'Containers'
+    <#WindowsFeature 'Containers'
     {
         Name   = 'Containers'
         Ensure = 'Present'
         LogPath = 'c:\windows\temp\containerfeature.txt'
-    }
+    }#>
 
     xPendingReboot Reboot 
     {
@@ -223,7 +227,7 @@ configuration PullServerSQL
         DependsOn = '[cWDSInitialize]InitWDS'
     }
 
-    Script DockerService {
+    <#Script DockerService {
         SetScript = {
             Install-Module DockerMsftProvider -Force
             Install-Package Docker -ProviderName DockerMsftProvider -Force
@@ -247,7 +251,58 @@ configuration PullServerSQL
         State = 'Running'
         Ensure = 'Present'
         DependsOn = '[Script]DockerService'
+    }#>
+
+    cDSCModule ActiveDirectoryCSDsc
+    {
+        Ensure    = 'Present'
+        DSCModule = 'ActiveDirectoryCSDsc'
+        DependsOn  = '[xDscWebService]PSDSCPullServer'
     }
+
+    cDSCModule xPendingReboot
+    {
+        Ensure    = 'Present'
+        DSCModule = 'xPendingReboot'
+        DependsOn  = '[xDscWebService]PSDSCPullServer'
+    }
+
+    cDSCModule XenDesktop7
+    {
+        Ensure    = 'Present'
+        DSCModule = 'XenDesktop7'
+        DependsOn  = '[xDscWebService]PSDSCPullServer'
+    }
+
+    cDSCModule SqlServerDsc
+    {
+        Ensure    = 'Present'
+        DSCModule = 'SqlServerDsc'
+        DependsOn  = '[xDscWebService]PSDSCPullServer'
+    }
+
+    cDSCModule ComputerManagementDsc
+    {
+        Ensure    = 'Present'
+        DSCModule = 'ComputerManagementDsc'
+        DependsOn  = '[xDscWebService]PSDSCPullServer'
+    }
+
+    cDSCModule xActiveDirectory
+    {
+        Ensure    = 'Present'
+        DSCModule = 'xActiveDirectory'
+        DependsOn  = '[xDscWebService]PSDSCPullServer'
+    }
+
+    cDSCModule xDnsServer
+    {
+        Ensure    = 'Present'
+        DSCModule = 'xDnsServer'
+        DependsOn  = '[xDscWebService]PSDSCPullServer'
+    }
+
+
 }
 
 
