@@ -320,11 +320,11 @@ Configuration ConfigureLCM {
  
  # Configuration Data
  $ConfigData = @{
-       AllNodes = @(
-             @{
-                   NodeName                    = 'localhost'
-             }
-       )
+    AllNodes = @(
+        @{
+            NodeName = 'localhost'
+        }
+    )
  }
  
  # Compile the LCM Config
