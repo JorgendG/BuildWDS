@@ -125,6 +125,16 @@ configuration PullServerSQL
         MatchSource = $false
     }
 
+    File install2022wim
+    {
+        Ensure = 'Present'
+        Type = 'File'
+        SourcePath = "$sourcewim\install2022.wim"
+        DestinationPath = 'c:\wdsimages\install2022.wim'
+        DependsOn = '[File]wdsimagesfolder'
+        MatchSource = $false
+    }
+
     File install2019wim
     {
         Ensure = 'Present'
@@ -165,6 +175,15 @@ configuration PullServerSQL
         DependsOn = '[File]wdsimagesfolder'
     }
 
+    File installw11wim
+    {
+        Ensure = 'Present'
+        Type = 'File'
+        SourcePath = "$sourcewim\installw11.wim"
+        DestinationPath = 'c:\wdsimages\installw11.wim'
+        DependsOn = '[File]wdsimagesfolder'
+    }
+
     cWDSInitialize InitWDS
     {
         Ensure = 'Present'
@@ -178,6 +197,16 @@ configuration PullServerSQL
         ImageName = 'Microsoft Windows Setup (x64)'
         Path = 'c:\wdsimages\boot.wim'
         DependsOn = '[cWDSInitialize]InitWDS','[File]bootwim'
+    }
+
+    cWDSInstallImage server2022
+    {
+        Ensure = 'Present'
+        ImageName = 'Windows Server 2022 SERVERSTANDARD'
+        GroupName = 'Windows Server 2022'
+        Path = 'c:\wdsimages\install2022.wim'
+        Unattendfile = 'install2022.xml'
+        DependsOn = '[cWDSInitialize]InitWDS','[File]install2022wim'
     }
 
     cWDSInstallImage server2019
@@ -218,6 +247,16 @@ configuration PullServerSQL
         Path = 'c:\wdsimages\installw10_19h2.wim'
         Unattendfile = 'installwin10.xml'
         DependsOn = '[cWDSInitialize]InitWDS','[File]installw10wim'
+    }
+
+    cWDSInstallImage windows11
+    {
+        Ensure = 'Present'
+        ImageName = 'Windows 10 Enterprise'
+        GroupName = 'Windows 11'
+        Path = 'c:\wdsimages\installw11.wim'
+        Unattendfile = 'installwin11.xml'
+        DependsOn = '[cWDSInitialize]InitWDS','[File]installw11wim'
     }
 
     cWDSServerAnswer answerAll
