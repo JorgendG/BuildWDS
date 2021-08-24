@@ -100,6 +100,17 @@ configuration PullServerSQL
         MatchSource = $false
     }
 
+    File DscPublicKey
+    {
+        Ensure = 'Present'
+        Type = 'File'
+        SourcePath = "C:\windows\temp\DscPublicKey.cer"
+        DestinationPath = 'c:\pullserver\wds01.cer.txt'
+        DependsOn = '[xDscWebService]PSDSCPullServer'
+        MatchSource = $false
+    }
+
+
     WindowsFeature 'WDS'
     {
         Name   = 'WDS'
@@ -338,6 +349,13 @@ configuration PullServerSQL
     {
         Ensure    = 'Present'
         DSCModule = 'xDnsServer'
+        DependsOn  = '[xDscWebService]PSDSCPullServer'
+    }
+
+    cDSCModule cWDS
+    {
+        Ensure    = 'Present'
+        DSCModule = 'cWDS'
         DependsOn  = '[xDscWebService]PSDSCPullServer'
     }
 

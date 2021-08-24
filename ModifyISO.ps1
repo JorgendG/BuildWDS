@@ -234,7 +234,7 @@ function MakeISO {
     Start-Process "$oscdimgexe" -ArgumentList $OscdimgArguments -Wait -NoNewWindow
 }
 
-if( (CheckOSCDIMG) -eq $null )
+if( $null -eq (CheckOSCDIMG) )
 {
     InstallOSCDIMG
 }
