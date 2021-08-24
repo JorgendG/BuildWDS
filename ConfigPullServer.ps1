@@ -105,7 +105,7 @@ configuration PullServerSQL
         Ensure = 'Present'
         Type = 'File'
         SourcePath = "C:\windows\temp\DscPublicKey.cer"
-        DestinationPath = 'c:\pullserver\wds01.cer.txt'
+        DestinationPath = 'c:\pullserver\DscPublicKey.cer'
         DependsOn = '[xDscWebService]PSDSCPullServer'
         MatchSource = $false
     }
