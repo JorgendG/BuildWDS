@@ -42,5 +42,6 @@ lcm -OutputPath C:\Windows\temp
 #Rename-Computer -NewName $newComputername -Force
 
 #sc config winrm start= auto
+Set-Service -Name winrm -StartupType Automatic
 Start-Service winrm
 Set-DscLocalConfigurationManager c:\windows\temp -Verbose
