@@ -359,6 +359,20 @@ configuration PullServerSQL
         DependsOn  = '[xDscWebService]PSDSCPullServer'
     }
 
+    cDSCModule NetworkingDsc
+    {
+        Ensure    = 'Present'
+        DSCModule = 'NetworkingDsc'
+        DependsOn  = '[xDscWebService]PSDSCPullServer'
+    }
+
+    xRemoteFile MakeDscConfigFile
+    {
+        DestinationPath = "C:\Pullserver\MakeDSCConfig.ps1"
+        Uri = "https://github.com/JorgendG/BuildWDS/raw/master/MakeDSCConfig.ps1"
+        DependsOn = '[File]PullServerFiles'
+    }
+
 
 }
 
