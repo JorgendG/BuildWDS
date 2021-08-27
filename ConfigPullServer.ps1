@@ -341,7 +341,7 @@ configuration PullServerSQL
     cDSCModule ActiveDirectoryDsc
     {
         Ensure    = 'Present'
-        DSCModule = 'ActiveDirectory'
+        DSCModule = 'ActiveDirectoryDsc'
         DependsOn  = '[xDscWebService]PSDSCPullServer'
     }
 
