@@ -7,7 +7,7 @@ $ConfigData= @{
                 PSDscAllowDomainUser = $true
                 DomainName = "homelabdc22.local"
                 IPDC01 = "192.168.1.22"
-                sourcesql = '\\nasje\public\sql\2017express'
+                sourcesql = '\\hyperdrive\public\sql\2017express'
 
             },
             @{
@@ -51,6 +51,12 @@ $ConfigData= @{
             ,
             @{
                 NodeName = "XDDC"
+                PSDscAllowDomainUser = $true
+                SourceXD = '\\hyperdrive\public\xendesktop\1912'
+            }
+            ,
+            @{
+                NodeName = "Docker"
                 PSDscAllowDomainUser = $true
             }
 
@@ -491,7 +497,7 @@ configuration HomelabConfig
 
         DnsServerAddress setdns
         {
-            Address = $ConfigData.AllNodes[0].IPDC01
+            Address = $Node.IPDC01
             InterfaceAlias = 'Ethernet'
             AddressFamily = 'IPv4'
         }
@@ -499,7 +505,7 @@ configuration HomelabConfig
         Computer JoinDomain
         {
             Name       = 'localhost'
-            DomainName    = $ConfigData.AllNodes[0].DomainName
+            DomainName    = $Node.DomainName
             #DomainName = 'homelab'
             Credential = $Credential # Credential to join to domain
             DependsOn = '[cVMName]vmname','[DnsServerAddress]setdns'
@@ -565,7 +571,7 @@ configuration HomelabConfig
         File xdfiles
         {
             Ensure = 'Present'
-            SourcePath = '\\nasje\public\xendesktop\1912'
+            SourcePath = $node.SourceXD
             Credential = $ShareCredentials
             DestinationPath = 'c:\install\xd7'
             Recurse = $true
@@ -778,6 +784,49 @@ configuration HomelabConfig
 
 
     }
+
+    Node 'Docker'
+    {
+        cVMName vmname
+        {
+            Ensure = 'Present'
+            DSCModule = 'Bla'
+        }
+
+        PendingReboot herstart
+        {
+            Name             = "Herstart"
+            SkipCcmClientSDK = $true 
+        }
+
+        DnsServerAddress setdns
+        {
+            Address = $Node.IPDC01
+            InterfaceAlias = 'Ethernet'
+            AddressFamily = 'IPv4'
+        }
+
+        Computer JoinDomain
+        {
+            Name       = 'localhost'
+            DomainName    = $ConfigData.AllNodes[0].DomainName
+            #DomainName = 'homelab'
+            Credential = $Credential # Credential to join to domain
+            DependsOn = '[cVMName]vmname','[DnsServerAddress]setdns'
+        }
+
+        WindowsFeature InstallHyper-V-PowerShell
+        {
+            Name = "Hyper-V-PowerShell"
+            Ensure = "Present"
+        }
+
+        WindowsFeature InstallContainers
+        {
+            Name = "Containers"
+            Ensure = "Present"
+        }
+    }
 }
 
 if( $null -eq $credential )
@@ -785,8 +834,8 @@ if( $null -eq $credential )
     $credential = Get-Credential -Message "Remote credentials"
 }
 
-$SharePwd = "readonly" | ConvertTo-SecureString -AsPlainText -Force
-$ShareUserName = "nasje\readonly"
+$SharePwd = "P@ssword!" | ConvertTo-SecureString -AsPlainText -Force
+$ShareUserName = "hyperdrive\readonly"
 $ShareCredentials = New-Object System.Management.Automation.PSCredential -ArgumentList $ShareUserName, $SharePwd
 
 $ConfigData.AllNodes[0].DomainName =  ($credential.UserName -split '\\')[0]+'.local'
