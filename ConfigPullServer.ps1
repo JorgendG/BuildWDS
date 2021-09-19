@@ -85,6 +85,7 @@ configuration PullServerSQL
             RegistrationKeyPath          = "c:\pullserver"
             UseSecurityBestPractices     = $true
             AcceptSelfSignedCertificates = $true
+            ConfigureFirewall            = $false
             #SqlProvider                  = $true
             #SqlConnectionString          = 'Provider=SQLOLEDB.1;Server=.\sqlexpress;Database=DemoDSC;Integrated Security=SSPI;Initial Catalog=master;'
             DependsOn                    = '[File]PullServerFiles', '[WindowsFeature]dscservice'#, '[SqlSetup]SqlExpress'
@@ -402,6 +403,21 @@ configuration PullServerSQL
             Uri = "https://github.com/JorgendG/BuildWDS/raw/master/MakeDSCConfig.ps1"
 
             DependsOn = '[File]PullServerFiles'
+        }
+
+        xRemoteFile BootstrapScript
+        {
+            DestinationPath = "C:\inetpub\wwwroot\Bootstrap.txt"
+            Uri = "https://github.com/JorgendG/BuildWDS/raw/master/SetLCM.ps1"
+
+            DependsOn = '[xDSCWebService]PSDSCPullServer'
+        }
+
+        WindowsFeature 'Web-Mgmt-Console'
+        {
+            Name   = 'Web-Mgmt-Console'
+            Ensure = 'Present'
+            IncludeAllSubFeature = $true
         }
     }
 
