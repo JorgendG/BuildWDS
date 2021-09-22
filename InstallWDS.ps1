@@ -179,7 +179,7 @@ $xmlunattend = [xml]'<unattend xmlns="urn:schemas-microsoft-com:unattend">
                             <Order>1</Order>
                             </RunSynchronousCommand>
                         <RunSynchronousCommand wcm:action="add">
-                            <Path>cmd /c echo powershell.exe -command &quot;&amp; {invoke-webrequest -uri &apos;https://github.com/JorgendG/BuildWDS/raw/master/SetLCM.ps1&apos; -OutFile &apos;c:\windows\temp\script.ps1&apos; }&quot; &gt; c:\windows\setup\scripts\setupcomplete.cmd</Path>
+                            <Path>cmd /c echo powershell.exe -command &quot;&amp; {invoke-webrequest -uri &apos;http://wds01/Bootstrap.txt&apos; -OutFile &apos;c:\windows\temp\script.ps1&apos; }&quot; &gt; c:\windows\setup\scripts\setupcomplete.cmd</Path>
                             <Order>2</Order>
                         </RunSynchronousCommand>
                         <RunSynchronousCommand wcm:action="add">
