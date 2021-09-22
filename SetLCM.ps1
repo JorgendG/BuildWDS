@@ -1,7 +1,7 @@
 Get-LocalUser -Name "Administrator" | Enable-LocalUser
 
 # certificaat tbv credential encryptie
-Invoke-WebRequest -Uri https://github.com/JorgendG/BuildWDS/raw/master/DscPrivatePublicKey.pfx -OutFile C:\Windows\Temp\DscPrivatePublicKey.pfx
+Invoke-WebRequest -Uri http://wds01/DscPrivatePublicKey.pfx.txt -OutFile C:\Windows\Temp\DscPrivatePublicKey.pfx
 $mypwd = ConvertTo-SecureString -String "1234" -Force -AsPlainText
 Import-PfxCertificate -FilePath C:\Windows\Temp\DscPrivatePublicKey.pfx -Password $mypwd -CertStoreLocation Cert:\LocalMachine\My
 

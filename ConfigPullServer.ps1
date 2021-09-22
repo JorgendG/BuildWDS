@@ -181,7 +181,7 @@ configuration PullServerSQL
             MatchSource = $false
         }
 
-        <#File install2012r2wim
+        File install2012r2wim
         {
             Ensure = 'Present'
             Type = 'File'
@@ -190,7 +190,7 @@ configuration PullServerSQL
             Credential = $ShareCredentials
             DependsOn = '[File]wdsimagesfolder'
             MatchSource = $false
-        }#>
+        }
 
         File installw10wim
         {
@@ -257,7 +257,7 @@ configuration PullServerSQL
             DependsOn = '[cWDSInitialize]InitWDS','[File]install2016wim'
         }
 
-        <#cWDSInstallImage server2012r2
+        cWDSInstallImage server2012r2
         {
             Ensure = 'Present'
             ImageName = 'Windows Server 2012 R2 SERVERSTANDARD'
@@ -265,7 +265,7 @@ configuration PullServerSQL
             Path = 'c:\wdsimages\install2012r2.wim'
             Unattendfile = 'install2012r2.xml'
             DependsOn = '[cWDSInitialize]InitWDS','[File]install2012r2wim'
-        }#>
+        }
 
         cWDSInstallImage windows10
         {
@@ -409,6 +409,14 @@ configuration PullServerSQL
         {
             DestinationPath = "C:\inetpub\wwwroot\Bootstrap.txt"
             Uri = "https://github.com/JorgendG/BuildWDS/raw/master/SetLCM.ps1"
+
+            DependsOn = '[xDSCWebService]PSDSCPullServer'
+        }
+
+        xRemoteFile DscPrivatePublicKey
+        {
+            DestinationPath = "C:\inetpub\wwwroot\DscPrivatePublicKey.pfx.txt"
+            Uri = " https://github.com/JorgendG/BuildWDS/raw/master/DscPrivatePublicKey.pfx"
 
             DependsOn = '[xDSCWebService]PSDSCPullServer'
         }
