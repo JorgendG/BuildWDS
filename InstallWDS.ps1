@@ -2,7 +2,7 @@
 # oscdimg.exe -m -o -u2 -udfver102 -bootdata:2#p0,e,bc:\temp\iso\boot\etfsboot.com#pEF,e,bc:\temp\iso\efi\microsoft\boot\efisys.bin c:\temp\iso c:\temp\wds01.iso
 start-transcript -path c:\windows\temp\installwds.txt
 
-$sourcediragents = "\\nasje\public\agents"
+$sourcediragents = "\\hyperdrive\public\agents"
 
 #[Net.ServicePointManager]::SecurityProtocol='tls12,tls11,tls'
 #Install-Module CertificateDsc -Force
@@ -19,7 +19,18 @@ $sourcediragents = "\\nasje\public\agents"
 #Copy-Item $sourcedirmodules\SqlServerDsc 'C:\Program Files\WindowsPowerShell\Modules' -Recurse -Force
 #Copy-Item $sourcedirmodules\cWDS 'C:\Program Files\WindowsPowerShell\Modules' -Recurse -Force
 #Copy-Item $sourcedirmodules\xPendingReboot 'C:\Program Files\WindowsPowerShell\Modules' -Recurse -Force
-Copy-Item $sourcediragents\managementagentx64.msi 'C:\Windows\Temp' -Recurse -Force
+#Copy-Item $sourcediragents\managementagentx64.msi 'C:\Windows\Temp' -Recurse -Force
+
+#$cred = Get-Credential
+$sourcePath = "$sourcediragents\managementagentx64.msi"
+$destPath = "C:\Windows\Temp\managementagentx64.msi"
+
+$SharePwd = "P@ssword!" | ConvertTo-SecureString -AsPlainText -Force
+$ShareUserName = "hyperdrive\readonly"
+$ShareCredentials = New-Object System.Management.Automation.PSCredential -ArgumentList $ShareUserName, $SharePwd
+
+Start-BitsTransfer -Source $sourcePath -Destination $destPath -Credential $ShareCredentials
+
 
 #Install-PackageProvider -Name "Nuget" -Force
 #Register-PackageSource -Name chocolatey -Location http://chocolatey.org/api/v2 -ProviderName NuGet -Trusted -Verbose
