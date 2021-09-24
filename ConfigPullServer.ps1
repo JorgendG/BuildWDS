@@ -21,7 +21,8 @@ configuration PullServerSQL
 
     Import-DscResource -ModuleName PSDesiredStateConfiguration
     Import-DscResource -ModuleName xPSDesiredStateConfiguration
-    Import-DscResource -ModuleName xPendingReboot
+    Import-DscResource -ModuleName ComputerManagementDsc
+    Import-DscResource -ModuleName NetworkingDsc
     Import-DscResource -ModuleName SqlServerDsc
     Import-DscResource -ModuleName cWDS
     
@@ -48,14 +49,7 @@ configuration PullServerSQL
             Ensure = 'Present'
         }
 
-        <#WindowsFeature 'Containers'
-        {
-            Name   = 'Containers'
-            Ensure = 'Present'
-            LogPath = 'c:\windows\temp\containerfeature.txt'
-        }#>
-
-        xPendingReboot Reboot 
+        PendingReboot Reboot 
         {
             Name             = "Reboot After Containers"
             SkipCcmClientSDK = $true 
@@ -90,6 +84,21 @@ configuration PullServerSQL
             #SqlConnectionString          = 'Provider=SQLOLEDB.1;Server=.\sqlexpress;Database=DemoDSC;Integrated Security=SSPI;Initial Catalog=master;'
             DependsOn                    = '[File]PullServerFiles', '[WindowsFeature]dscservice'#, '[SqlSetup]SqlExpress'
         }
+
+        Firewall Pullserver
+        {
+            Name                  = 'DSCPullServer_IIS_Port'
+            DisplayName           = 'DSCPullServer_IIS_Port'
+            Ensure                = 'Present'
+            Enabled               = 'True'
+            Profile               = ('Domain', 'Private', 'Public')
+            Direction             = 'InBound'
+            LocalPort             = ('8080')
+            Protocol              = 'TCP'
+            Description           = 'DSC Pullserver'
+            DependsOn             = '[xDSCWebService]PSDSCPullServer'
+        }
+
 
         File RegistrationKeyFile 
         {
@@ -294,43 +303,10 @@ configuration PullServerSQL
             DependsOn = '[cWDSInitialize]InitWDS'
         }
 
-        <#Script DockerService {
-            SetScript = {
-                Install-Module DockerMsftProvider -Force
-                Install-Package Docker -ProviderName DockerMsftProvider -Force
-            }
-            GetScript = {
-                return @{
-                    'Service' = (Get-Service -Name Docker).Name
-                }
-            }
-            TestScript = {
-                if (Get-Service -Name Docker -ErrorAction SilentlyContinue) {
-                    return $True
-                }
-                return $False
-            }
-            DependsOn = '[windowsfeature]containers'
-        }
-
-        Service DockerService{
-            Name = 'Docker'
-            State = 'Running'
-            Ensure = 'Present'
-            DependsOn = '[Script]DockerService'
-        }#>
-
         cDSCModule ActiveDirectoryCSDsc
         {
             Ensure    = 'Present'
             DSCModule = 'ActiveDirectoryCSDsc'
-            DependsOn  = '[xDscWebService]PSDSCPullServer'
-        }
-
-        cDSCModule xPendingReboot
-        {
-            Ensure    = 'Present'
-            DSCModule = 'xPendingReboot'
             DependsOn  = '[xDscWebService]PSDSCPullServer'
         }
 
@@ -401,7 +377,6 @@ configuration PullServerSQL
         {
             DestinationPath = "C:\Pullserver\MakeDSCConfig.ps1"
             Uri = "https://github.com/JorgendG/BuildWDS/raw/master/MakeDSCConfig.ps1"
-
             DependsOn = '[File]PullServerFiles'
         }
 

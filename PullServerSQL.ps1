@@ -1,9 +1,9 @@
 Install-PackageProvider -Name "Nuget" -Force
 
 Install-Module -Name xPSDesiredStateConfiguration -Force
-Install-Module -Name xPendingReboot -Force
 Install-Module -Name ComputerManagementDsc -Force
 Install-Module -Name SqlServerDsc -Force
+Install-Module -Name NetworkingDsc -Force
 
 #Get-Module xPendingReboot -ListAvailable | Publish-ModuleToPullServer -PullServerWebConfig "$env:SystemDrive\inetpub\PSDSCPullServer\web.config"
 
