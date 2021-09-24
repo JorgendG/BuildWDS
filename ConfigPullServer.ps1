@@ -18,6 +18,7 @@ configuration PullServerSQL
 
     $sourcewim = '\\hyperdrive\public\wim'
     $sourcesql = '\\hyperdrive\public\sql\2017express'
+    $sourcexenagent = '\\hyperdrive\public\agents\managementagentx64.msi'
 
     Import-DscResource -ModuleName PSDesiredStateConfiguration
     Import-DscResource -ModuleName xPSDesiredStateConfiguration
@@ -54,6 +55,26 @@ configuration PullServerSQL
             Name             = "Reboot After Containers"
             SkipCcmClientSDK = $true 
 	    }
+
+        File managementagentx64 # $sourcexenagent = '\\hyperdrive\public\agents\managementagentx64.msi'
+        {
+            Ensure = 'Present'
+            Type = 'File'
+            SourcePath = $sourcexenagent
+            DestinationPath = 'c:\Windows\temp\managementagentx64.msi'
+            Credential = $ShareCredentials
+            MatchSource = $false
+        }
+
+        Package CitrixHypervisorPVTools
+        {
+            Ensure      = "Present"  # You can also set Ensure to "Absent"
+            Path        = "c:\Windows\temp\managementagentx64.msi"
+            Name        = "Citrix Hypervisor PV Tools"
+            ProductId   = "AC81AF0E-19F5-4A4F-B891-76166BF348ED"
+            Arguments   = "/qn /norestart"
+            DependsOn   = '[File]managementagentx64'
+        }
     
         <#SqlSetup SqlExpress
         {
