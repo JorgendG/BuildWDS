@@ -351,8 +351,6 @@ configuration HomelabConfig
             DependsOn = '[WindowsFeature]ADCSWebEnrollment'
         }
 
-        
-
         WindowsFeature RSAT-ADCS
         {
             Ensure = 'Present'
@@ -448,12 +446,12 @@ configuration HomelabConfig
                 SetScript = {
                     Write-Verbose "Submitting C:\Windows\System32\CertSrv\CertEnroll\$Using:SubCA.req to $($Using:Node.CACommonName)"
                     [String]$RequestResult = & "$($ENV:SystemRoot)\System32\Certreq.exe" -Config ".\$($Using:Node.CACommonName)" -Submit "C:\Windows\System32\CertSrv\CertEnroll\$Using:SubCA.req"
-                    $Matches = [Regex]::Match($RequestResult, 'RequestId:\s([0-9]*)')
-                    If ($Matches.Groups.Count -lt 2) {
+                    $MatchesReqs = [Regex]::Match($RequestResult, 'RequestId:\s([0-9]*)')
+                    If ($MatchesReqs.Groups.Count -lt 2) {
                         Write-Verbose "Error getting Request ID from SubCA certificate submission."
                         Throw "Error getting Request ID from SubCA certificate submission."
                     }
-                    [int]$RequestId = $Matches.Groups[1].Value
+                    [int]$RequestId = $MatchesReqs.Groups[1].Value
                     Write-Verbose "Issuing $RequestId in $($Using:Node.CACommonName)"
                     [String]$SubmitResult =  & "$($ENV:SystemRoot)\System32\CertUtil.exe" -Resubmit $RequestId
                     If ($SubmitResult -notlike 'Certificate issued.*') {
@@ -461,7 +459,7 @@ configuration HomelabConfig
                         Throw "Unexpected result issuing SubCA request."
                     }
                     Write-Verbose "Retrieving C:\Windows\System32\CertSrv\CertEnroll\$Using:SubCA.req from $($Using:Node.CACommonName)"
-                    [String]$RetrieveResult =  & "$($ENV:SystemRoot)\System32\Certreq.exe" -Config ".\$($Using:Node.CACommonName)" -Retrieve $RequestId "C:\Windows\System32\CertSrv\CertEnroll\$Using:SubCA.crt"
+                    & "$($ENV:SystemRoot)\System32\Certreq.exe" -Config ".\$($Using:Node.CACommonName)" -Retrieve $RequestId "C:\Windows\System32\CertSrv\CertEnroll\$Using:SubCA.crt"
                 }
                 GetScript = {
                     Return @{
@@ -506,7 +504,6 @@ configuration HomelabConfig
         {
             Name       = 'localhost'
             DomainName    = $Node.DomainName
-            #DomainName = 'homelab'
             Credential = $Credential # Credential to join to domain
             DependsOn = '[cVMName]vmname','[DnsServerAddress]setdns'
         }
@@ -528,7 +525,7 @@ configuration HomelabConfig
 
         DnsServerAddress setdns
         {
-            Address = $ConfigData.AllNodes[0].IPDC01
+            Address = $Node.IPDC01
             InterfaceAlias = 'Ethernet'
             AddressFamily = 'IPv4'
         }
@@ -536,7 +533,7 @@ configuration HomelabConfig
         Computer JoinDomain
         {
             Name       = 'localhost'
-            DomainName = $ConfigData.AllNodes[0].DomainName
+            DomainName = $Node.DomainName
             Credential = $Credential # Credential to join to domain
             DependsOn = '[cVMName]vmname','[DnsServerAddress]setdns'
         }
@@ -564,7 +561,6 @@ configuration HomelabConfig
         {
             Ensure = 'Present'
             DestinationPath = 'c:\install'
-            #Credential = $ShareCredentials
             Type = 'Directory'
         }
 
@@ -577,7 +573,6 @@ configuration HomelabConfig
             Recurse = $true
             MatchSource = $false
             DependsOn = '[File]installfolder'
-
         }
 
         XD7Features XD7Controller {
@@ -591,7 +586,6 @@ configuration HomelabConfig
             SiteName = 'Homelab Site' 
             DatabaseServer = 'XDDC01\SQLEXPRESS'
             DatabaseName = 'SiteDB'
-            #Credential = $Credential
             DataStore = 'Site'
             DependsOn = '[XD7Features]XD7Controller'
         }
@@ -600,7 +594,6 @@ configuration HomelabConfig
             SiteName = 'Homelab Site'
             DatabaseServer = 'XDDC01\SQLEXPRESS'
             DatabaseName = 'LogDB'
-            #Credential = $Credential;
             DataStore = 'Logging';
             DependsOn = '[XD7Features]XD7Controller';
         }
@@ -609,7 +602,6 @@ configuration HomelabConfig
             SiteName = 'Homelab Site'
             DatabaseServer = 'XDDC01\SQLEXPRESS'
             DatabaseName = 'MonDB'
-            #Credential = $Credential;
             DataStore = 'Monitor';
             DependsOn = '[XD7Features]XD7Controller';
         }
@@ -620,34 +612,30 @@ configuration HomelabConfig
             SiteDatabaseName = 'SiteDB'
             LoggingDatabaseName = 'LogDB'
             MonitorDatabaseName = 'MonDB'
-            #Credential = $Credential;
             DependsOn = '[XD7Features]XD7Controller','[XD7Database]XD7SiteDatabase','[XD7Database]XD7SiteLoggingDatabase','[XD7Database]XD7SiteMonitorDatabase';
         }
 
         XD7Administrator XD7AdministratorExample {
-                Name = 'Domain Admins'
-                Enabled = $true
-                Ensure = 'Present'
-                DependsOn = '[xd7site]XD7Site'
-            }
+            Name = 'Domain Admins'
+            Enabled = $true
+            Ensure = 'Present'
+            DependsOn = '[xd7site]XD7Site'
+        }
 
-            XD7Administrator XD7Administrator {
-                Name = 'Administrator'
-                Enabled = $true
-                Ensure = 'Present'
-                DependsOn = '[xd7site]XD7Site'
-            }
+        XD7Administrator XD7Administrator {
+            Name = 'Administrator'
+            Enabled = $true
+            Ensure = 'Present'
+            DependsOn = '[xd7site]XD7Site'
+        }
 
-            XD7Administrator XD7AdministratorHomelab {
-                Name = 'homelab\Administrator'
-                Enabled = $true
-                Ensure = 'Present'
-                DependsOn = '[xd7site]XD7Site'
-            }
-
-
+        XD7Administrator XD7AdministratorHomelab {
+            Name = 'homelab\Administrator'
+            Enabled = $true
+            Ensure = 'Present'
+            DependsOn = '[xd7site]XD7Site'
+        }
     }
-
 
     Node 'Web'
     {
@@ -702,14 +690,10 @@ configuration HomelabConfig
             Ensure                = 'Present'
             Enabled               = 'True'
         }
-
-
-
     }
 
     Node 'DC'
     {
-        
         PendingReboot herstart
         {
             Name             = "Herstart"
@@ -781,8 +765,6 @@ configuration HomelabConfig
             IsSingleInstance = 'Yes'
             DependsOn = '[ADDomain]ConfigDC'
         }
-
-
     }
 
     Node 'Docker'
@@ -809,9 +791,8 @@ configuration HomelabConfig
         Computer JoinDomain
         {
             Name       = 'localhost'
-            DomainName    = $ConfigData.AllNodes[0].DomainName
-            #DomainName = 'homelab'
-            Credential = $Credential # Credential to join to domain
+            DomainName    = $Node.DomainName
+            Credential = $Credential
             DependsOn = '[cVMName]vmname','[DnsServerAddress]setdns'
         }
 
