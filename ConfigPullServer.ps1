@@ -1,7 +1,7 @@
 $sslcert = Get-ChildItem -Path "Cert:\LocalMachine\My" | where { $_.Subject -eq 'CN=wds01' -and $_.Issuer -eq 'CN=wds01'  }
 if( $null -eq $sslcert )
 {
-    $sslcert = New-SelfSignedCertificate -DnsName "wds01", "wds01.homelab.local" -CertStoreLocation "cert:\LocalMachine\My"
+    $sslcert = New-SelfSignedCertificate -DnsName "wds01", "wds01.homelabdc22.local" -CertStoreLocation "cert:\LocalMachine\My"
     $cert = Get-ChildItem -Path "Cert:\LocalMachine\My\$($sslcert.Thumbprint)"
 
     Export-Certificate -Cert $cert -FilePath C:\windows\temp\wds01.cer
@@ -29,7 +29,6 @@ configuration PullServerSQL
     
     node localhost
     {
-
         WindowsFeature dscservice 
         {
             Name   = 'Dsc-Service'
@@ -56,7 +55,7 @@ configuration PullServerSQL
             SkipCcmClientSDK = $true 
 	    }
 
-        File managementagentx64 # $sourcexenagent = '\\hyperdrive\public\agents\managementagentx64.msi'
+        File managementagentx64
         {
             Ensure = 'Present'
             Type = 'File'
@@ -68,7 +67,7 @@ configuration PullServerSQL
 
         Package CitrixHypervisorPVTools
         {
-            Ensure      = "Present"  # You can also set Ensure to "Absent"
+            Ensure      = "Present" 
             Path        = "c:\Windows\temp\managementagentx64.msi"
             Name        = "Citrix Hypervisor PV Tools"
             ProductId   = "AC81AF0E-19F5-4A4F-B891-76166BF348ED"
@@ -120,7 +119,6 @@ configuration PullServerSQL
             DependsOn             = '[xDSCWebService]PSDSCPullServer'
         }
 
-
         File RegistrationKeyFile 
         {
             Ensure          = 'Present'
@@ -149,7 +147,6 @@ configuration PullServerSQL
             DependsOn = '[xDscWebService]PSDSCPullServer'
             MatchSource = $false
         }
-
 
         WindowsFeature 'WDS'
         {
@@ -198,7 +195,6 @@ configuration PullServerSQL
             DependsOn = '[File]wdsimagesfolder'
             MatchSource = $false
         }
-
 
         File install2016wim
         {
@@ -424,8 +420,6 @@ configuration PullServerSQL
             IncludeAllSubFeature = $true
         }
     }
-
-
 }
 
 
