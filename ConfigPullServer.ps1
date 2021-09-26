@@ -16,9 +16,6 @@ configuration PullServerSQL
 
     )
 
-    $wimfiles = $ConfigData.WimFiles
-    $DSCModules = $ConfigData.DSCModules
-
     Import-DscResource -ModuleName PSDesiredStateConfiguration
     Import-DscResource -ModuleName xPSDesiredStateConfiguration
     Import-DscResource -ModuleName ComputerManagementDsc
@@ -28,6 +25,12 @@ configuration PullServerSQL
     
     node localhost
     {
+        PendingReboot Reboot 
+        {
+            Name             = "Reboot"
+            SkipCcmClientSDK = $true 
+	    }
+
         File managementagentx64
         {
             Ensure = 'Present'
@@ -68,21 +71,26 @@ configuration PullServerSQL
             Ensure = 'Present'
         }
 
-        PendingReboot Reboot 
+        File SQLServerFiles 
         {
-            Name             = "Reboot After Containers"
-            SkipCcmClientSDK = $true 
-	    }
+            SourcePath = $Node.SourcePathSQL
+            DestinationPath = 'c:\pullserver\sql'
+            Ensure = 'Present'
+            Type = 'Directory'
+            Recurse = $true
+        }
+
+        
     
         SqlSetup SqlExpress
         {
             InstanceName           = 'SQLEXPRESS'
             Features               = 'SQLENGINE'
             SQLSysAdminAccounts    = 'BUILTIN\Administrators', 'NT AUTHORITY\SYSTEM'
-            SourcePath             = $Node.SourcePathSQL
-            UpdateEnabled          = 'False'
+            SourcePath             = 'c:\pullserver\sql'
+            UpdateEnabled          = $false
             ForceReboot            = $false
-            DependsOn              = '[WindowsFeature]NetFramework45'
+            DependsOn              = '[WindowsFeature]NetFramework45','[File]SQLServerFiles'
         }
 
         xDscWebService PSDSCPullServer 
@@ -101,7 +109,7 @@ configuration PullServerSQL
             ConfigureFirewall            = $false
             SqlProvider                  = $true
             SqlConnectionString          = 'Provider=SQLOLEDB.1;Server=.\sqlexpress;Database=DemoDSC;Integrated Security=SSPI;Initial Catalog=master;'
-            DependsOn                    = '[File]PullServerFiles', '[WindowsFeature]dscservice'#, '[SqlSetup]SqlExpress'
+            DependsOn                    = '[File]PullServerFiles', '[WindowsFeature]dscservice', '[SqlSetup]SqlExpress'
         }
 
         Firewall Pullserver
@@ -169,7 +177,7 @@ configuration PullServerSQL
             DependsOn = '[WindowsFeature]WDS'
         }
 
-        Foreach($WimFile in $WimFiles)
+        Foreach($WimFile in $ConfigurationData.WimFiles)
         {
             File "FileCopy-$($WimFile.Name)" 
             {
@@ -199,7 +207,7 @@ configuration PullServerSQL
             DependsOn = '[cWDSInitialize]InitWDS'
         }
 
-        Foreach($DSCModule in $DSCModules)
+        Foreach($DSCModule in $ConfigurationData.DSCModules)
         {
             cDSCModule "DSCModule-$($DSCModule.Name)"
             {
@@ -260,7 +268,7 @@ $ShareCredentials = New-Object System.Management.Automation.PSCredential -Argume
   # Compile the LCM Config
  ConfigureLCM `
        -OutputPath . `
-       -ConfigurationData $ConfigData
+       -ConfigurationData ConfigPullServer.psd1
        
   # Apply the LCM Config
  Set-DscLocalConfigurationManager `
@@ -268,5 +276,7 @@ $ShareCredentials = New-Object System.Management.Automation.PSCredential -Argume
        -ComputerName Localhost `
        -Verbose
 
-PullServerSQL -ShareCredentials $ShareCredentials -ConfigurationData .\ConfigPullServer.psd1
+$sourcewim = '\\hyperdrive\public\wim'
+
+PullServerSQL -ShareCredentials $ShareCredentials -ConfigurationData ConfigPullServer.psd1
 Start-DscConfiguration -Path .\PullServerSQL -Verbose -wait -Force
