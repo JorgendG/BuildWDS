@@ -16,9 +16,12 @@ configuration PullServerSQL
 
     )
 
-    $sourcewim = '\\hyperdrive\public\wim'
+    #$sourcewim = '\\hyperdrive\public\wim'
     $sourcesql = '\\hyperdrive\public\sql\2017express'
     $sourcexenagent = '\\hyperdrive\public\agents\managementagentx64.msi'
+
+    $wimfiles = $ConfigData.WimFiles
+    $DSCModules = $ConfigData.DSCModules
 
     Import-DscResource -ModuleName PSDesiredStateConfiguration
     Import-DscResource -ModuleName xPSDesiredStateConfiguration
@@ -163,81 +166,6 @@ configuration PullServerSQL
             Force = $true
         }
 
-        File bootwim
-        {
-            Ensure = 'Present'
-            Type = 'File'
-            SourcePath = "$sourcewim\boot.wim"
-            DestinationPath = 'c:\wdsimages\boot.wim'
-            Credential = $ShareCredentials
-            DependsOn = '[File]wdsimagesfolder'
-            MatchSource = $false
-        }
-
-        File install2022wim
-        {
-            Ensure = 'Present'
-            Type = 'File'
-            SourcePath = "$sourcewim\install2022.wim"
-            DestinationPath = 'c:\wdsimages\install2022.wim'
-            Credential = $ShareCredentials
-            DependsOn = '[File]wdsimagesfolder'
-            MatchSource = $false
-        }
-
-        File install2019wim
-        {
-            Ensure = 'Present'
-            Type = 'File'
-            SourcePath = "$sourcewim\install2019.wim"
-            DestinationPath = 'c:\wdsimages\install2019.wim'
-            Credential = $ShareCredentials
-            DependsOn = '[File]wdsimagesfolder'
-            MatchSource = $false
-        }
-
-        File install2016wim
-        {
-            Ensure = 'Present'
-            Type = 'File'
-            SourcePath = "$sourcewim\install2016.wim"
-            DestinationPath = 'c:\wdsimages\install2016.wim'
-            Credential = $ShareCredentials
-            DependsOn = '[File]wdsimagesfolder'
-            MatchSource = $false
-        }
-
-        File install2012r2wim
-        {
-            Ensure = 'Present'
-            Type = 'File'
-            SourcePath = "$sourcewim\install2012r2.wim"
-            DestinationPath = 'c:\wdsimages\install2012r2.wim'
-            Credential = $ShareCredentials
-            DependsOn = '[File]wdsimagesfolder'
-            MatchSource = $false
-        }
-
-        File installw10wim
-        {
-            Ensure = 'Present'
-            Type = 'File'
-            SourcePath = "$sourcewim\installw10_19h2.wim"
-            DestinationPath = 'c:\wdsimages\installw10_19h2.wim'
-            Credential = $ShareCredentials
-            DependsOn = '[File]wdsimagesfolder'
-        }
-
-        File installw11wim
-        {
-            Ensure = 'Present'
-            Type = 'File'
-            SourcePath = "$sourcewim\installw11.wim"
-            DestinationPath = 'c:\wdsimages\installw11.wim'
-            Credential = $ShareCredentials
-            DependsOn = '[File]wdsimagesfolder'
-        }
-
         cWDSInitialize InitWDS
         {
             Ensure = 'Present'
@@ -245,74 +173,29 @@ configuration PullServerSQL
             DependsOn = '[WindowsFeature]WDS'
         }
 
-        cWDSInstallImage bootimage
+        Foreach($WimFile in $WimFiles)
         {
-            Ensure = 'Present'
-            ImageName = 'Microsoft Windows Setup (x64)'
-            Path = 'c:\wdsimages\boot.wim'
-            DependsOn = '[cWDSInitialize]InitWDS','[File]bootwim'
-        }
+            File "FileCopy-$($WimFile.Name)" 
+            {
+                Ensure = 'Present'
+                Type = 'File'
+                DependsOn = '[File]wdsimagesfolder'
 
-        cWDSInstallImage server2022
-        {
-            Ensure = 'Present'
-            ImageName = 'Windows Server 2022 SERVERSTANDARD'
-            GroupName = 'Windows Server 2022'
-            Path = 'c:\wdsimages\install2022.wim'
-            Unattendfile = 'install2022.xml'
-            DependsOn = '[cWDSInitialize]InitWDS','[File]install2022wim'
-        }
+                SourcePath = $WimFile.SourcePath
+                DestinationPath = $WimFile.DestinationPath
+            }
 
-        cWDSInstallImage server2019
-        {
-            Ensure = 'Present'
-            ImageName = 'Windows Server 2019 SERVERSTANDARD'
-            GroupName = 'Windows Server 2019'
-            Path = 'c:\wdsimages\install2019.wim'
-            Unattendfile = 'install2019.xml'
-            DependsOn = '[cWDSInitialize]InitWDS','[File]install2019wim'
+            cWDSInstallImage "WDSInstallImage-$($WimFile.Name)"
+            {
+                Ensure = 'Present'
+                ImageName = $WimFile.ImageName
+                GroupName = $WimFile.GroupName
+                Path = $WimFile.DestinationPath
+                Unattendfile = $WimFile.Unattendfile
+                DependsOn = '[cWDSInitialize]InitWDS',"[File]FileCopy-$($WimFile.Name)" 
+            }
         }
-
-        cWDSInstallImage server2016
-        {
-            Ensure = 'Present'
-            ImageName = 'Windows Server 2016 SERVERSTANDARD'
-            GroupName = 'Windows Server 2016'
-            Path = 'c:\wdsimages\install2016.wim'
-            Unattendfile = 'install2016.xml'
-            DependsOn = '[cWDSInitialize]InitWDS','[File]install2016wim'
-        }
-
-        cWDSInstallImage server2012r2
-        {
-            Ensure = 'Present'
-            ImageName = 'Windows Server 2012 R2 SERVERSTANDARD'
-            GroupName = 'Windows Server 2012R2'
-            Path = 'c:\wdsimages\install2012r2.wim'
-            Unattendfile = 'install2012r2.xml'
-            DependsOn = '[cWDSInitialize]InitWDS','[File]install2012r2wim'
-        }
-
-        cWDSInstallImage windows10
-        {
-            Ensure = 'Present'
-            ImageName = 'Windows 10 Enterprise Evaluation'
-            GroupName = 'Windows 10'
-            Path = 'c:\wdsimages\installw10_19h2.wim'
-            Unattendfile = 'installwin10.xml'
-            DependsOn = '[cWDSInitialize]InitWDS','[File]installw10wim'
-        }
-
-        cWDSInstallImage windows11
-        {
-            Ensure = 'Present'
-            ImageName = 'Windows 10 Enterprise'
-            GroupName = 'Windows 11'
-            Path = 'c:\wdsimages\installw11.wim'
-            Unattendfile = 'installwin11.xml'
-            DependsOn = '[cWDSInitialize]InitWDS','[File]installw11wim'
-        }
-
+      
         cWDSServerAnswer answerAll
         {
             Ensure = 'Present'
@@ -320,74 +203,14 @@ configuration PullServerSQL
             DependsOn = '[cWDSInitialize]InitWDS'
         }
 
-        cDSCModule ActiveDirectoryCSDsc
+        Foreach($DSCModule in $DSCModules)
         {
-            Ensure    = 'Present'
-            DSCModule = 'ActiveDirectoryCSDsc'
-            DependsOn  = '[xDscWebService]PSDSCPullServer'
-        }
-
-        cDSCModule XenDesktop7
-        {
-            Ensure    = 'Present'
-            DSCModule = 'XenDesktop7'
-            DependsOn  = '[xDscWebService]PSDSCPullServer'
-        }
-
-        cDSCModule SqlServerDsc
-        {
-            Ensure    = 'Present'
-            DSCModule = 'SqlServerDsc'
-            DependsOn  = '[xDscWebService]PSDSCPullServer'
-        }
-
-        cDSCModule ComputerManagementDsc
-        {
-            Ensure    = 'Present'
-            DSCModule = 'ComputerManagementDsc'
-            DependsOn  = '[xDscWebService]PSDSCPullServer'
-        }
-
-        cDSCModule ActiveDirectoryDsc
-        {
-            Ensure    = 'Present'
-            DSCModule = 'ActiveDirectoryDsc'
-            DependsOn  = '[xDscWebService]PSDSCPullServer'
-        }
-
-        cDSCModule xDnsServer
-        {
-            Ensure    = 'Present'
-            DSCModule = 'xDnsServer'
-            DependsOn  = '[xDscWebService]PSDSCPullServer'
-        }
-
-        cDSCModule cWDS
-        {
-            Ensure    = 'Present'
-            DSCModule = 'cWDS'
-            DependsOn  = '[xDscWebService]PSDSCPullServer'
-        }
-
-        cDSCModule NetworkingDsc
-        {
-            Ensure    = 'Present'
-            DSCModule = 'NetworkingDsc'
-            DependsOn  = '[xDscWebService]PSDSCPullServer'
-        }
-
-        cDSCModule xPSDesiredStateConfiguration
-        {
-            Ensure    = 'Present'
-            DSCModule = 'xPSDesiredStateConfiguration'
-            DependsOn  = '[xDscWebService]PSDSCPullServer'
-        }
-
-        cDSCModule PackageManagement
-        {
-            Ensure    = 'Present'
-            DSCModule = 'PackageManagement'
-            DependsOn  = '[xDscWebService]PSDSCPullServer'
+            cDSCModule "DSCModule-$($DSCModule.Name)"
+            {
+                Ensure    = 'Present'
+                DSCModule = $DSCModule.Name
+                DependsOn  = '[xDscWebService]PSDSCPullServer'
+            }
         }
 
         xRemoteFile MakeDscConfigFile
@@ -431,16 +254,105 @@ Configuration ConfigureLCM {
             RefreshMode = 'Push'
             ConfigurationMode = 'ApplyAndAutoCorrect'
             ActionAfterReboot = 'ContinueConfiguration'
-            #PSDscAllowPlainTextPassword = $true
          }
      }
  }
  
  # Configuration Data
+ $sourcewim = '\\hyperdrive\public\wim'
  $ConfigData = @{
     AllNodes = @(
         @{
             NodeName = 'localhost'
+            PSDscAllowPlainTextPassword = $true
+            PSDscAllowDomainUser = $true
+        }
+    )
+    WimFiles = @(
+        @{
+            Name = 'Boot'
+            SourcePath = "$sourcewim\boot.wim"
+            DestinationPath = 'c:\wdsimages\boot.wim'
+            ImageName = 'Microsoft Windows Setup (x64)'
+        },
+        @{
+            Name = 'Server2022'
+            SourcePath = "$sourcewim\install2022.wim"
+            DestinationPath = 'c:\wdsimages\install2022.wim'
+            ImageName = 'Windows Server 2022 SERVERSTANDARD'
+            GroupName = 'Windows Server 2022'
+            Unattendfile = 'install2022.xml'
+        },
+        @{
+            Name = 'Server2019'
+            SourcePath = "$sourcewim\install2019.wim"
+            DestinationPath = 'c:\wdsimages\install2019.wim'
+            ImageName = 'Windows Server 2019 SERVERSTANDARD'
+            GroupName = 'Windows Server 2019'
+            Unattendfile = 'install2019.xml'
+        },
+        @{
+            Name = 'Server2016'
+            SourcePath = "$sourcewim\install2016.wim"
+            DestinationPath = 'c:\wdsimages\install2016.wim'
+            ImageName = 'Windows Server 2016 SERVERSTANDARD'
+            GroupName = 'Windows Server 2016'
+            Unattendfile = 'install2016.xml'
+        },
+        @{
+            Name = 'Server2012R2'
+            SourcePath = "$sourcewim\install2012r2.wim"
+            DestinationPath = 'c:\wdsimages\install2012r2.wim'
+            ImageName = 'Windows Server 2012 R2 SERVERSTANDARD'
+            GroupName = 'Windows Server 2012R2'
+            Unattendfile = 'install2012r2.xml'
+        },
+        ,
+        @{
+            Name = 'Windows10'
+            SourcePath = "$sourcewim\installw10_19h2.wim"
+            DestinationPath = 'c:\wdsimages\installw10_19h2.wim'
+            ImageName = 'Windows 10 Enterprise Evaluation'
+            GroupName = 'Windows 10'
+            Unattendfile = 'installwin10.xml'
+        }
+        ,
+        @{
+            Name = 'Windows11'
+            SourcePath = "$sourcewim\installw11.wim"
+            DestinationPath = 'c:\wdsimages\installw11.wim'
+            ImageName = 'Windows 10 Enterprise'
+            GroupName = 'Windows 11'
+            Unattendfile = 'installwin11.xml'
+        }
+    )
+    DSCModules = @(
+        @{
+            Name = 'ActiveDirectoryDsc'
+        },
+        @{
+            Name = 'xDnsServer'
+        },
+        @{
+            Name = 'cWDS'
+        },
+        @{
+            Name = 'NetworkingDsc'
+        },
+        @{
+            Name = 'xPSDesiredStateConfiguration'
+        },
+        @{
+            Name = 'PackageManagement'
+        },
+        @{
+            Name = 'XenDesktop7'
+        },
+        @{
+            Name = 'ActiveDirectoryCSDsc'
+        },
+        @{
+            Name = 'SqlServerDsc'
         }
     )
  }
@@ -462,14 +374,6 @@ $ShareCredentials = New-Object System.Management.Automation.PSCredential -Argume
        -ComputerName Localhost `
        -Verbose
 
-$cd = @{
-    AllNodes = @(
-        @{
-            NodeName = 'localhost'
-            PSDscAllowPlainTextPassword = $true
-        }
-    )
-} 
 
-PullServerSQL -ShareCredentials $ShareCredentials -ConfigurationData $cd 
+PullServerSQL -ShareCredentials $ShareCredentials -ConfigurationData $ConfigData
 Start-DscConfiguration -Path .\PullServerSQL -Verbose -wait -Force
