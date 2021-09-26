@@ -13,6 +13,9 @@ start-transcript -path c:\windows\temp\installwds.txt
 # Onderstaande code via een eenmalige(?) scheduled task uitvoeren die heel snel volgt op het huidige moment. Als setupcomplete.cmd is 
 # afgerond is er vast een default profile waardoor install-module wel werkt
 
+$mypwd = ConvertTo-SecureString -String "P@ssword!" -Force -AsPlainText
+New-LocalUser -Name readonly -Password $mypwd -AccountNeverExpires 
+
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize" -Value 2
 
 $xmlunattend = [xml]'<unattend xmlns="urn:schemas-microsoft-com:unattend">
@@ -195,8 +198,8 @@ $xmlunattend = [xml]'<unattend xmlns="urn:schemas-microsoft-com:unattend">
         </unattend>'
 $winpe = $xmlunattend.unattend.settings | Where-Object{ $_.pass -eq 'windowsPE' }
 $winpe.component.Where( {$_.name -eq 'Microsoft-Windows-International-Core-WinPE'} )
-$winpe.component.Where( {$_.name -eq 'Microsoft-Windows-Setup'} ).WindowsDeploymentServices.Login.Credentials.Username = 'administrator'
-$winpe.component.Where( {$_.name -eq 'Microsoft-Windows-Setup'} ).WindowsDeploymentServices.Login.Credentials.Password = '12wq!@WQ'
+$winpe.component.Where( {$_.name -eq 'Microsoft-Windows-Setup'} ).WindowsDeploymentServices.Login.Credentials.Username = 'readonly'
+$winpe.component.Where( {$_.name -eq 'Microsoft-Windows-Setup'} ).WindowsDeploymentServices.Login.Credentials.Password = 'P@ssword!'
 $winpe.component.Where( {$_.name -eq 'Microsoft-Windows-Setup'} ).WindowsDeploymentServices.Login.Credentials.Domain = 'wds01'
 
 $xmlunattend.Save( "c:\windows\temp\unattend.xml" )
