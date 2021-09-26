@@ -1,4 +1,4 @@
-$sslcert = Get-ChildItem -Path "Cert:\LocalMachine\My" | where { $_.Subject -eq 'CN=wds01' -and $_.Issuer -eq 'CN=wds01'  }
+$sslcert = Get-ChildItem -Path "Cert:\LocalMachine\My" | Where-Object { $_.Subject -eq 'CN=wds01' -and $_.Issuer -eq 'CN=wds01'  }
 if( $null -eq $sslcert )
 {
     $sslcert = New-SelfSignedCertificate -DnsName "wds01", "wds01.homelabdc22.local" -CertStoreLocation "cert:\LocalMachine\My"
@@ -16,7 +16,6 @@ configuration PullServerSQL
 
     )
 
-    #$sourcewim = '\\hyperdrive\public\wim'
     $sourcesql = '\\hyperdrive\public\sql\2017express'
     $sourcexenagent = '\\hyperdrive\public\agents\managementagentx64.msi'
 
@@ -51,7 +50,7 @@ configuration PullServerSQL
             Arguments   = "/Lv c:\windows\temp\managementagentx64.log.txt /quiet /norestart"
             DependsOn   = '[File]managementagentx64'
         }
-        
+
         WindowsFeature dscservice 
         {
             Name   = 'Dsc-Service'
@@ -355,6 +354,9 @@ Configuration ConfigureLCM {
         },
         @{
             Name = 'SqlServerDsc'
+        },
+        @{
+            Name = 'ComputerManagementDsc'
         }
     )
  }
