@@ -16,9 +16,6 @@ configuration PullServerSQL
 
     )
 
-    $sourcesql = '\\hyperdrive\public\sql\2017express'
-    $sourcexenagent = '\\hyperdrive\public\agents\managementagentx64.msi'
-
     $wimfiles = $ConfigData.WimFiles
     $DSCModules = $ConfigData.DSCModules
 
@@ -35,7 +32,7 @@ configuration PullServerSQL
         {
             Ensure = 'Present'
             Type = 'File'
-            SourcePath = $sourcexenagent
+            SourcePath = $Node.SourcePathXenAgent
             DestinationPath = 'c:\Windows\temp\managementagentx64.msi'
             Credential = $ShareCredentials
             MatchSource = $false
@@ -76,19 +73,17 @@ configuration PullServerSQL
             Name             = "Reboot After Containers"
             SkipCcmClientSDK = $true 
 	    }
-
-        
     
-        <#SqlSetup SqlExpress
+        SqlSetup SqlExpress
         {
             InstanceName           = 'SQLEXPRESS'
             Features               = 'SQLENGINE'
             SQLSysAdminAccounts    = 'BUILTIN\Administrators', 'NT AUTHORITY\SYSTEM'
-            SourcePath             = $sourcesql
+            SourcePath             = $Node.SourcePathSQL
             UpdateEnabled          = 'False'
             ForceReboot            = $false
             DependsOn              = '[WindowsFeature]NetFramework45'
-        }#>
+        }
 
         xDscWebService PSDSCPullServer 
         {
@@ -104,8 +99,8 @@ configuration PullServerSQL
             UseSecurityBestPractices     = $true
             AcceptSelfSignedCertificates = $true
             ConfigureFirewall            = $false
-            #SqlProvider                  = $true
-            #SqlConnectionString          = 'Provider=SQLOLEDB.1;Server=.\sqlexpress;Database=DemoDSC;Integrated Security=SSPI;Initial Catalog=master;'
+            SqlProvider                  = $true
+            SqlConnectionString          = 'Provider=SQLOLEDB.1;Server=.\sqlexpress;Database=DemoDSC;Integrated Security=SSPI;Initial Catalog=master;'
             DependsOn                    = '[File]PullServerFiles', '[WindowsFeature]dscservice'#, '[SqlSetup]SqlExpress'
         }
 
@@ -246,7 +241,6 @@ configuration PullServerSQL
     }
 }
 
-
 # Configure the LCM
 Configuration ConfigureLCM {
     Node $AllNodes.NodeName {
@@ -259,125 +253,20 @@ Configuration ConfigureLCM {
      }
  }
  
- # Configuration Data
- $sourcewim = '\\hyperdrive\public\wim'
- $ConfigData = @{
-    AllNodes = @(
-        @{
-            NodeName = 'localhost'
-            PSDscAllowPlainTextPassword = $true
-            PSDscAllowDomainUser = $true
-        }
-    )
-    WimFiles = @(
-        @{
-            Name = 'Boot'
-            SourcePath = "$sourcewim\boot.wim"
-            DestinationPath = 'c:\wdsimages\boot.wim'
-            ImageName = 'Microsoft Windows Setup (x64)'
-        },
-        @{
-            Name = 'Server2022'
-            SourcePath = "$sourcewim\install2022.wim"
-            DestinationPath = 'c:\wdsimages\install2022.wim'
-            ImageName = 'Windows Server 2022 SERVERSTANDARD'
-            GroupName = 'Windows Server 2022'
-            Unattendfile = 'install2022.xml'
-        },
-        @{
-            Name = 'Server2019'
-            SourcePath = "$sourcewim\install2019.wim"
-            DestinationPath = 'c:\wdsimages\install2019.wim'
-            ImageName = 'Windows Server 2019 SERVERSTANDARD'
-            GroupName = 'Windows Server 2019'
-            Unattendfile = 'install2019.xml'
-        },
-        @{
-            Name = 'Server2016'
-            SourcePath = "$sourcewim\install2016.wim"
-            DestinationPath = 'c:\wdsimages\install2016.wim'
-            ImageName = 'Windows Server 2016 SERVERSTANDARD'
-            GroupName = 'Windows Server 2016'
-            Unattendfile = 'install2016.xml'
-        },
-        @{
-            Name = 'Server2012R2'
-            SourcePath = "$sourcewim\install2012r2.wim"
-            DestinationPath = 'c:\wdsimages\install2012r2.wim'
-            ImageName = 'Windows Server 2012 R2 SERVERSTANDARD'
-            GroupName = 'Windows Server 2012R2'
-            Unattendfile = 'install2012r2.xml'
-        },
-        ,
-        @{
-            Name = 'Windows10'
-            SourcePath = "$sourcewim\installw10_19h2.wim"
-            DestinationPath = 'c:\wdsimages\installw10_19h2.wim'
-            ImageName = 'Windows 10 Enterprise Evaluation'
-            GroupName = 'Windows 10'
-            Unattendfile = 'installwin10.xml'
-        }
-        ,
-        @{
-            Name = 'Windows11'
-            SourcePath = "$sourcewim\installw11.wim"
-            DestinationPath = 'c:\wdsimages\installw11.wim'
-            ImageName = 'Windows 10 Enterprise'
-            GroupName = 'Windows 11'
-            Unattendfile = 'installwin11.xml'
-        }
-    )
-    DSCModules = @(
-        @{
-            Name = 'ActiveDirectoryDsc'
-        },
-        @{
-            Name = 'xDnsServer'
-        },
-        @{
-            Name = 'cWDS'
-        },
-        @{
-            Name = 'NetworkingDsc'
-        },
-        @{
-            Name = 'xPSDesiredStateConfiguration'
-        },
-        @{
-            Name = 'PackageManagement'
-        },
-        @{
-            Name = 'XenDesktop7'
-        },
-        @{
-            Name = 'ActiveDirectoryCSDsc'
-        },
-        @{
-            Name = 'SqlServerDsc'
-        },
-        @{
-            Name = 'ComputerManagementDsc'
-        }
-    )
- }
-
 $SharePwd = "P@ssword!" | ConvertTo-SecureString -AsPlainText -Force
 $ShareUserName = "hyperdrive\readonly"
 $ShareCredentials = New-Object System.Management.Automation.PSCredential -ArgumentList $ShareUserName, $SharePwd
 
- 
- # Compile the LCM Config
+  # Compile the LCM Config
  ConfigureLCM `
        -OutputPath . `
        -ConfigurationData $ConfigData
        
- 
- # Apply the LCM Config
+  # Apply the LCM Config
  Set-DscLocalConfigurationManager `
        -Path .\ConfigureLCM\ `
        -ComputerName Localhost `
        -Verbose
 
-
-PullServerSQL -ShareCredentials $ShareCredentials -ConfigurationData $ConfigData
+PullServerSQL -ShareCredentials $ShareCredentials -ConfigurationData .\ConfigPullServer.psd1
 Start-DscConfiguration -Path .\PullServerSQL -Verbose -wait -Force

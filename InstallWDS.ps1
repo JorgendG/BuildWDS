@@ -202,6 +202,7 @@ $winpe.component.Where( {$_.name -eq 'Microsoft-Windows-Setup'} ).WindowsDeploym
 $xmlunattend.Save( "c:\windows\temp\unattend.xml" )
 
 Invoke-WebRequest -Uri https://github.com/JorgendG/BuildWDS/raw/master/PullServerSQL.ps1 -OutFile C:\Windows\Temp\PullServerSQL.ps1
+Invoke-WebRequest -Uri https://github.com/JorgendG/BuildWDS/raw/master/PullServerSQL.psd1 -OutFile C:\Windows\Temp\PullServerSQL.psd1
 Invoke-WebRequest -Uri https://github.com/JorgendG/BuildWDS/raw/master/ConfigPullServer.ps1 -OutFile C:\Windows\Temp\ConfigPullServer.ps1
 Invoke-WebRequest -Uri https://github.com/JorgendG/BuildWDS/raw/master/DscPrivatePublicKey.pfx -OutFile C:\Windows\Temp\DscPrivatePublicKey.pfx
 Invoke-WebRequest -Uri https://github.com/JorgendG/BuildWDS/raw/master/DscPublicKey.cer -OutFile C:\Windows\Temp\DscPublicKey.cer
