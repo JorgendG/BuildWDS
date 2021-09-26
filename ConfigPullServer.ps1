@@ -32,6 +32,26 @@ configuration PullServerSQL
     
     node localhost
     {
+        File managementagentx64
+        {
+            Ensure = 'Present'
+            Type = 'File'
+            SourcePath = $sourcexenagent
+            DestinationPath = 'c:\Windows\temp\managementagentx64.msi'
+            Credential = $ShareCredentials
+            MatchSource = $false
+        }
+
+        Package CitrixHypervisorPVTools
+        {
+            Ensure      = "Present" 
+            Path        = "c:\Windows\temp\managementagentx64.msi"
+            Name        = "Citrix Hypervisor PV Tools"
+            ProductId   = "AC81AF0E-19F5-4A4F-B891-76166BF348ED"
+            Arguments   = "/Lv c:\windows\temp\managementagentx64.log.txt /quiet /norestart"
+            DependsOn   = '[File]managementagentx64'
+        }
+        
         WindowsFeature dscservice 
         {
             Name   = 'Dsc-Service'
@@ -58,25 +78,7 @@ configuration PullServerSQL
             SkipCcmClientSDK = $true 
 	    }
 
-        File managementagentx64
-        {
-            Ensure = 'Present'
-            Type = 'File'
-            SourcePath = $sourcexenagent
-            DestinationPath = 'c:\Windows\temp\managementagentx64.msi'
-            Credential = $ShareCredentials
-            MatchSource = $false
-        }
-
-        Package CitrixHypervisorPVTools
-        {
-            Ensure      = "Present" 
-            Path        = "c:\Windows\temp\managementagentx64.msi"
-            Name        = "Citrix Hypervisor PV Tools"
-            ProductId   = "AC81AF0E-19F5-4A4F-B891-76166BF348ED"
-            Arguments   = "/Lv c:\windows\temp\managementagentx64.log.txt /quiet /norestart"
-            DependsOn   = '[File]managementagentx64'
-        }
+        
     
         <#SqlSetup SqlExpress
         {
