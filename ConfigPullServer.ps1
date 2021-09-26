@@ -74,7 +74,7 @@ configuration PullServerSQL
             Path        = "c:\Windows\temp\managementagentx64.msi"
             Name        = "Citrix Hypervisor PV Tools"
             ProductId   = "AC81AF0E-19F5-4A4F-B891-76166BF348ED"
-            Arguments   = "/quiet /norestart"
+            Arguments   = "/Lv c:\windows\temp\managementagentx64.log.txt /quiet /norestart"
             DependsOn   = '[File]managementagentx64'
         }
     
