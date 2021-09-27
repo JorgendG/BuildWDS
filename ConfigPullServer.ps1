@@ -1,3 +1,5 @@
+start-transcript -path c:\windows\temp\configpullserver.txt
+
 $sslcert = Get-ChildItem -Path "Cert:\LocalMachine\My" | Where-Object { $_.Subject -eq 'CN=wds01' -and $_.Issuer -eq 'CN=wds01'  }
 if( $null -eq $sslcert )
 {
