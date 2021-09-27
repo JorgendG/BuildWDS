@@ -270,7 +270,7 @@ $ShareCredentials = New-Object System.Management.Automation.PSCredential -Argume
   # Compile the LCM Config
  ConfigureLCM `
        -OutputPath . `
-       -ConfigurationData ConfigPullServer.psd1
+       -ConfigurationData c:\Windows\Temp\ConfigPullServer.psd1
        
   # Apply the LCM Config
  Set-DscLocalConfigurationManager `
