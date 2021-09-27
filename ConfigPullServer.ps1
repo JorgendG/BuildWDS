@@ -53,6 +53,26 @@ configuration PullServerSQL
             DependsOn   = '[File]managementagentx64'
         }
 
+        File sqlmanagement
+        {
+            Ensure = 'Present'
+            Type = 'File'
+            SourcePath = $Node.SourcePathSQLMgt
+            DestinationPath = 'c:\Windows\temp\SSMS-Setup-ENU.exe'
+            Credential = $ShareCredentials
+            MatchSource = $false
+        }
+
+        Package SSMS {
+            Ensure    = "Present"
+            Name      = "Microsoft SQL Server Management Studio - 18.4"
+            Path      = 'c:\Windows\temp\SSMS-Setup-ENU.exe'
+            ProductId = ''
+            Arguments = "/install /quiet /norestart"
+            LogPath   = "C:\windows\temp\SSMS_install.log"
+            DependsOn = '[File]sqlmanagement'
+        }
+
         WindowsFeature dscservice 
         {
             Name   = 'Dsc-Service'
