@@ -278,5 +278,5 @@ $ShareCredentials = New-Object System.Management.Automation.PSCredential -Argume
 
 $sourcewim = '\\hyperdrive\public\wim'
 
-PullServerSQL -ShareCredentials $ShareCredentials -ConfigurationData ConfigPullServer.psd1
+PullServerSQL -ShareCredentials $ShareCredentials -ConfigurationData c:\Windows\Temp\ConfigPullServer.psd1
 Start-DscConfiguration -Path .\PullServerSQL -Verbose -wait -Force
