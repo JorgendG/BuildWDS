@@ -701,8 +701,16 @@ configuration HomelabConfig
             DependsOn = '[ADDomain]ConfigDC'
         }
 
-        DNSrecord sdfsd
-        
+        Foreach($DNSRecord in $ConfigurationData.DNSRecords)
+        {
+            DnsRecordA "DNSRecord-$($DNSRecord.Name)" 
+            {
+                Ensure = 'Present'
+                Name = $DNSRecord.Name
+                IPv4Address =  $DNSRecord.IPNumber
+                ZoneName = $Node.DomainName
+            }
+        }
     }
 
     Node 'Docker'
