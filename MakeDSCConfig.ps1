@@ -700,6 +700,9 @@ configuration HomelabConfig
             IsSingleInstance = 'Yes'
             DependsOn = '[ADDomain]ConfigDC'
         }
+
+        DNSrecord sdfsd
+        
     }
 
     Node 'Docker'
