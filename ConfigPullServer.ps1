@@ -246,6 +246,13 @@ configuration PullServerSQL
             DependsOn = '[File]PullServerFiles'
         }
 
+        xRemoteFile MakeDscConfigDataFile
+        {
+            DestinationPath = "C:\Pullserver\MakeDSCConfig.psd1"
+            Uri = "https://github.com/JorgendG/BuildWDS/raw/master/MakeDSCConfig.psd1"
+            DependsOn = '[File]PullServerFiles'
+        }
+
         xRemoteFile BootstrapScript
         {
             DestinationPath = "C:\inetpub\wwwroot\Bootstrap.txt"
