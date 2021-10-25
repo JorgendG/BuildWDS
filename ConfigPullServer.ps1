@@ -11,13 +11,6 @@ if( $null -eq $sslcert )
 
 configuration PullServerSQL 
 {
-    param(
-        [Parameter(Mandatory=$false)]
-        [ValidateNotNullorEmpty()]
-        [PsCredential] $ShareCredentials
-
-    )
-
     Import-DscResource -ModuleName PSDesiredStateConfiguration
     Import-DscResource -ModuleName xPSDesiredStateConfiguration
     Import-DscResource -ModuleName ComputerManagementDsc
@@ -39,7 +32,7 @@ configuration PullServerSQL
             Type = 'File'
             SourcePath = $Node.SourcePathXenAgent
             DestinationPath = 'c:\Windows\temp\managementagentx64.msi'
-            Credential = $ShareCredentials
+            Credential = $Node.SourceCredentials
             MatchSource = $false
         }
 
@@ -59,7 +52,7 @@ configuration PullServerSQL
             Type = 'File'
             SourcePath = $Node.SourcePathSQLMgt
             DestinationPath = 'c:\Windows\temp\SSMS-Setup-ENU.exe'
-            Credential = $ShareCredentials
+            Credential = $Node.SourceCredentials
             MatchSource = $false
         }
 
@@ -101,8 +94,6 @@ configuration PullServerSQL
             Type = 'Directory'
             Recurse = $true
         }
-
-        
     
         SqlSetup SqlExpress
         {
@@ -206,7 +197,6 @@ configuration PullServerSQL
                 Ensure = 'Present'
                 Type = 'File'
                 DependsOn = '[File]wdsimagesfolder'
-
                 SourcePath = $WimFile.SourcePath
                 DestinationPath = $WimFile.DestinationPath
             }
@@ -233,40 +223,20 @@ configuration PullServerSQL
         {
             cDSCModule "DSCModule-$($DSCModule.Name)"
             {
-                Ensure    = 'Present'
-                DSCModule = $DSCModule.Name
-                DependsOn  = '[xDscWebService]PSDSCPullServer'
+                Ensure      = 'Present'
+                DSCModule   = $DSCModule.Name
+                DependsOn   = '[xDscWebService]PSDSCPullServer'
             }
         }
 
-        xRemoteFile MakeDscConfigFile
+        foreach ($RemoteFile in $RemoteFiles)
         {
-            DestinationPath = "C:\Pullserver\MakeDSCConfig.ps1"
-            Uri = "https://github.com/JorgendG/BuildWDS/raw/master/MakeDSCConfig.ps1"
-            DependsOn = '[File]PullServerFiles'
-        }
-
-        xRemoteFile MakeDscConfigDataFile
-        {
-            DestinationPath = "C:\Pullserver\MakeDSCConfig.psd1"
-            Uri = "https://github.com/JorgendG/BuildWDS/raw/master/MakeDSCConfig.psd1"
-            DependsOn = '[File]PullServerFiles'
-        }
-
-        xRemoteFile BootstrapScript
-        {
-            DestinationPath = "C:\inetpub\wwwroot\Bootstrap.txt"
-            Uri = "https://github.com/JorgendG/BuildWDS/raw/master/SetLCM.ps1"
-
-            DependsOn = '[xDSCWebService]PSDSCPullServer'
-        }
-
-        xRemoteFile DscPrivatePublicKey
-        {
-            DestinationPath = "C:\inetpub\wwwroot\DscPrivatePublicKey.pfx.txt"
-            Uri = " https://github.com/JorgendG/BuildWDS/raw/master/DscPrivatePublicKey.pfx"
-
-            DependsOn = '[xDSCWebService]PSDSCPullServer'
+            xRemoteFile "xRemoteFile-$($RemoteFile.Name)"
+            {
+                DestinationPath = $RemoteFile.DestinationPath
+                Uri             = $RemoteFile.Uri
+                DependsOn       = '[File]PullServerFiles'
+            }
         }
 
         WindowsFeature 'Web-Mgmt-Console'
@@ -290,10 +260,6 @@ Configuration ConfigureLCM {
      }
  }
  
-$SharePwd = "P@ssword!" | ConvertTo-SecureString -AsPlainText -Force
-$ShareUserName = "hyperdrive\readonly"
-$ShareCredentials = New-Object System.Management.Automation.PSCredential -ArgumentList $ShareUserName, $SharePwd
-
   # Compile the LCM Config
  ConfigureLCM `
        -OutputPath . `
@@ -305,7 +271,5 @@ $ShareCredentials = New-Object System.Management.Automation.PSCredential -Argume
        -ComputerName Localhost `
        -Verbose
 
-$sourcewim = '\\hyperdrive\public\wim'
-
-PullServerSQL -ShareCredentials $ShareCredentials -ConfigurationData c:\Windows\Temp\ConfigPullServer.psd1
+PullServerSQL -ConfigurationData c:\Windows\Temp\ConfigPullServer.psd1
 Start-DscConfiguration -Path .\PullServerSQL -Verbose -wait -Force

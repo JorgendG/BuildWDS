@@ -2,12 +2,13 @@ Get-LocalUser -Name "Administrator" | Enable-LocalUser
 
 # certificaat tbv credential encryptie
 Invoke-WebRequest -Uri http://wds01/DscPrivatePublicKey.pfx.txt -OutFile C:\Windows\Temp\DscPrivatePublicKey.pfx
-$mypwd = ConvertTo-SecureString -String "1234" -Force -AsPlainText
-$pfx = Import-PfxCertificate -FilePath C:\Windows\Temp\DscPrivatePublicKey.pfx -Password $mypwd -CertStoreLocation Cert:\LocalMachine\My
+$pfxpwd = ConvertTo-SecureString -String "1234" -Force -AsPlainText
+$pfx = Import-PfxCertificate -FilePath C:\Windows\Temp\DscPrivatePublicKey.pfx -Password $pfxpwd -CertStoreLocation Cert:\LocalMachine\My
 
 Invoke-WebRequest -Uri http://wds01/wds01.cer.txt -OutFile C:\Windows\Temp\wds01.cer
 Import-Certificate -FilePath C:\Windows\Temp\wds01.cer -CertStoreLocation Cert:\LocalMachine\Root
 
+# vm is computername:config:osversion
 $regvalue = Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Virtual Machine\Guest\Parameters" -Name "VirtualMachineName" -ErrorAction SilentlyContinue
 $config = ($regvalue.VirtualMachineName -split ':')[1]
 [dsclocalconfigurationmanager()]
@@ -36,12 +37,6 @@ configuration lcm {
 
 lcm -OutputPath C:\Windows\temp
 
-
-
-#$newComputername = ($regvalue.VirtualMachineName -split ':')[0]
-#Rename-Computer -NewName $newComputername -Force
-
-#sc config winrm start= auto
 Set-Service -Name winrm -StartupType Automatic
 Start-Service winrm
 Set-DscLocalConfigurationManager c:\windows\temp -Verbose

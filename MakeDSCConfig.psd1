@@ -61,6 +61,14 @@
         }
 
     )
+
+    DomainData = @(
+        @{
+            DomainName = "homelabdc22.local"
+            DCIpNumber = "192.168.1.22"
+        }
+    )
+    
     DNSRecords = @(
         @{
             Name = 'ns30'
@@ -89,6 +97,18 @@
         @{
             Name = 'pfsense'
             IPNumber = '192.168.1.7'
+        },
+        @{
+            Name = 'wordpress'
+            IPNumber = '192.168.1.70'
+        },
+        @{
+            Name = 'portainer'
+            IPNumber = '192.168.1.71'
+        },
+        @{
+            Name = 'mediawiki'
+            IPNumber = '192.168.1.72'
         }
     )
 }

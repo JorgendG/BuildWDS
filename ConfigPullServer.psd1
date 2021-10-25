@@ -7,6 +7,7 @@
             PSDscAllowPlainTextPassword = $true
             PSDscAllowDomainUser = $true
  
+            SourceCredentials = New-Object PSCredential -ArgumentList 'hyperdrive\readonly', (ConvertTo-SecureString 'P@ssword!' -AsPlainText -Force)
             SourcePathSQL = '\\hyperdrive\public\sql\2017express'
             SourcePathSQLMgt = '\\hyperdrive\public\sql\sqlmgt\SSMS-Setup-ENU.exe'
             SourcePathXenAgent = '\\hyperdrive\public\agents\managementagentx64.msi'
@@ -70,6 +71,30 @@
             Unattendfile = 'installwin11.xml'
         }
     )
+
+    RemoteFiles = @(
+        @{
+            Name = 'DSCScript'
+            DestinationPath = "C:\Pullserver\MakeDSCConfig.ps1"
+            Uri = "https://github.com/JorgendG/BuildWDS/raw/master/MakeDSCConfig.ps1"
+        },
+        @{
+            Name = 'DSCData'
+            DestinationPath = "C:\Pullserver\MakeDSCConfig.psd1"
+            Uri = "https://github.com/JorgendG/BuildWDS/raw/master/MakeDSCConfig.psd1"
+        },
+        @{
+            Name = 'LCMScript'
+            DestinationPath = "C:\inetpub\wwwroot\Bootstrap.txt"
+            Uri = "https://github.com/JorgendG/BuildWDS/raw/master/SetLCM.ps1"
+        }
+        @{
+            Name = 'DSCPFX'
+            DestinationPath = "C:\inetpub\wwwroot\DscPrivatePublicKey.pfx.txt"
+            Uri = " https://github.com/JorgendG/BuildWDS/raw/master/DscPrivatePublicKey.pfx"
+        }
+    )
+
     DSCModules = @(
         @{
             Name = 'ActiveDirectoryDsc'
