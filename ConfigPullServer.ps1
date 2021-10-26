@@ -11,6 +11,12 @@ if( $null -eq $sslcert )
 
 configuration PullServerSQL 
 {
+    param(
+        [Parameter(Mandatory=$false)]
+        [ValidateNotNullorEmpty()]
+        [PsCredential] $ShareCredentials
+    )
+
     Import-DscResource -ModuleName PSDesiredStateConfiguration
     Import-DscResource -ModuleName xPSDesiredStateConfiguration
     Import-DscResource -ModuleName ComputerManagementDsc
@@ -263,13 +269,17 @@ Configuration ConfigureLCM {
   # Compile the LCM Config
  ConfigureLCM `
        -OutputPath . `
-       -ConfigurationData c:\Windows\Temp\ConfigPullServer.psd1
-       
+       -ConfigurationData .\ConfigPullServer.psd1
+
+$SharePwd = "P@ssword!" | ConvertTo-SecureString -AsPlainText -Force
+$ShareUserName = "hyperdrive\readonly"
+$ShareCredentials = New-Object System.Management.Automation.PSCredential -ArgumentList $ShareUserName, $SharePwd
+
   # Apply the LCM Config
  Set-DscLocalConfigurationManager `
        -Path .\ConfigureLCM\ `
        -ComputerName Localhost `
        -Verbose
 
-PullServerSQL -ConfigurationData c:\Windows\Temp\ConfigPullServer.psd1
+PullServerSQL -ShareCredentials $ShareCredentials -ConfigurationData .\ConfigPullServer.psd1
 Start-DscConfiguration -Path .\PullServerSQL -Verbose -wait -Force

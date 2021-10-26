@@ -7,7 +7,6 @@
             PSDscAllowPlainTextPassword = $true
             PSDscAllowDomainUser = $true
  
-            SourceCredentials = New-Object PSCredential -ArgumentList 'hyperdrive\readonly', (ConvertTo-SecureString 'P@ssword!' -AsPlainText -Force)
             SourcePathSQL = '\\hyperdrive\public\sql\2017express'
             SourcePathSQLMgt = '\\hyperdrive\public\sql\sqlmgt\SSMS-Setup-ENU.exe'
             SourcePathXenAgent = '\\hyperdrive\public\agents\managementagentx64.msi'
