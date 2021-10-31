@@ -38,7 +38,7 @@ configuration PullServerSQL
             Type = 'File'
             SourcePath = $Node.SourcePathXenAgent
             DestinationPath = 'c:\Windows\temp\managementagentx64.msi'
-            Credential = $Node.SourceCredentials
+            Credential = $ShareCredentials
             MatchSource = $false
         }
 
@@ -58,7 +58,7 @@ configuration PullServerSQL
             Type = 'File'
             SourcePath = $Node.SourcePathSQLMgt
             DestinationPath = 'c:\Windows\temp\SSMS-Setup-ENU.exe'
-            Credential = $Node.SourceCredentials
+            Credential = $ShareCredentials
             MatchSource = $false
         }
 
@@ -205,6 +205,7 @@ configuration PullServerSQL
                 DependsOn = '[File]wdsimagesfolder'
                 SourcePath = $WimFile.SourcePath
                 DestinationPath = $WimFile.DestinationPath
+                Credential = $ShareCredentials
             }
 
             cWDSInstallImage "WDSInstallImage-$($WimFile.Name)"
