@@ -266,10 +266,11 @@ Configuration ConfigureLCM {
      }
  }
  
+ $scriptpath = Split-Path $MyInvocation.MyCommand.Path -Parent
   # Compile the LCM Config
  ConfigureLCM `
        -OutputPath . `
-       -ConfigurationData .\ConfigPullServer.psd1
+       -ConfigurationData "$scriptpath\ConfigPullServer.psd1"
 
 $SharePwd = "P@ssword!" | ConvertTo-SecureString -AsPlainText -Force
 $ShareUserName = "hyperdrive\readonly"
@@ -281,5 +282,5 @@ $ShareCredentials = New-Object System.Management.Automation.PSCredential -Argume
        -ComputerName Localhost `
        -Verbose
 
-PullServerSQL -ShareCredentials $ShareCredentials -ConfigurationData .\ConfigPullServer.psd1
+PullServerSQL -ShareCredentials $ShareCredentials -ConfigurationData "$scriptpath\ConfigPullServer.psd1"
 Start-DscConfiguration -Path .\PullServerSQL -Verbose -wait -Force

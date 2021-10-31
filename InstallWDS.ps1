@@ -204,7 +204,7 @@ $winpe.component.Where( {$_.name -eq 'Microsoft-Windows-Setup'} ).WindowsDeploym
 
 $xmlunattend.Save( "c:\windows\temp\unattend.xml" )
 
-Invoke-WebRequest -Uri https://github.com/JorgendG/BuildWDS/raw/master/PullServerSQL.ps1 -OutFile C:\Windows\Temp\PullServerSQL.ps1
+Invoke-WebRequest -Uri https://github.com/JorgendG/BuildWDS/raw/master/InstallDSCModules.ps1 -OutFile C:\Windows\Temp\InstallDSCModules.ps1
 Invoke-WebRequest -Uri https://github.com/JorgendG/BuildWDS/raw/master/ConfigPullServer.psd1 -OutFile C:\Windows\Temp\ConfigPullServer.psd1
 Invoke-WebRequest -Uri https://github.com/JorgendG/BuildWDS/raw/master/ConfigPullServer.ps1 -OutFile C:\Windows\Temp\ConfigPullServer.ps1
 Invoke-WebRequest -Uri https://github.com/JorgendG/BuildWDS/raw/master/DscPrivatePublicKey.pfx -OutFile C:\Windows\Temp\DscPrivatePublicKey.pfx
@@ -217,37 +217,21 @@ Invoke-WebRequest -Uri https://github.com/JorgendG/cWDS/raw/master/cWDS.psm1 -Ou
 $mypwd = ConvertTo-SecureString -String "1234" -Force -AsPlainText
 Import-PfxCertificate -FilePath C:\Windows\Temp\DscPrivatePublicKey.pfx -Password $mypwd -CertStoreLocation Cert:\LocalMachine\My
 
-# https://xplantefeve.io/posts/SchdTskOnEvent
-$taskName = "PullServerSQL"
+# When this script is executed, the local environment hasn't been setup and install-module won't work
+# Create a scheduled task which runs after a reboot. After this reboot, the local environment is ready for install-module
+$taskName = "InstallDSCModules"
 $task = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
 if ($null -ne $task)
 {
     Unregister-ScheduledTask -TaskName $taskName -Confirm:$false 
 }
 
-# TODO: EDIT THIS STUFF AS NEEDED...
-$action = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument '-File "C:\windows\temp\PullServerSQL.ps1"'
+$action = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument '-File "C:\windows\temp\InstallDSCModules.ps1"'
 $trigger = New-ScheduledTaskTrigger -AtStartup
 $settings = New-ScheduledTaskSettingsSet -Compatibility Win8
 
 $principal = New-ScheduledTaskPrincipal -UserId SYSTEM -LogonType ServiceAccount -RunLevel Highest
-
 $definition = New-ScheduledTask -Action $action -Principal $principal -Trigger $trigger -Settings $settings -Description "Run $($taskName) at startup"
-
 Register-ScheduledTask -TaskName $taskName -InputObject $definition
-
-$task = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
-
-# TODO: LOG AS NEEDED...
-if ($null -ne $task)
-{
-    Write-Output "Created scheduled task: '$($task.ToString())'."
-}
-else
-{
-    Write-Output "Created scheduled task: FAILED."
-}
-
-#& $env:TEMP\PullServerSQL.ps1
 
 shutdown.exe /r /t 5
