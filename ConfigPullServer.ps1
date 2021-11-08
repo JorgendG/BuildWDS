@@ -273,7 +273,7 @@ Configuration ConfigureLCM {
        -OutputPath . `
        -ConfigurationData "$scriptpath\ConfigPullServer.psd1"
 
-$SharePwd = "P@ssword!" | ConvertTo-SecureString -AsPlainText -Force
+$SharePwd = "Welkom2020!" | ConvertTo-SecureString -AsPlainText -Force
 $ShareUserName = "hyperdrive\readonly"
 $ShareCredentials = New-Object System.Management.Automation.PSCredential -ArgumentList $ShareUserName, $SharePwd
 
