@@ -14,7 +14,7 @@ start-transcript -path c:\windows\temp\installwds.txt
 # afgerond is er vast een default profile waardoor install-module wel werkt
 
 $mypwd = ConvertTo-SecureString -String "P@ssword!" -Force -AsPlainText
-New-LocalUser -Name readonly -Password $mypwd -AccountNeverExpires 
+New-LocalUser -Name readonly -Password $mypwd -AccountNeverExpires:$true
 
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize" -Value 2
 

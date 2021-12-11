@@ -754,6 +754,45 @@ configuration HomelabConfig
             Ensure = "Present"
         }
     }
+
+    Node 'Syslog'
+    {
+        cVMName vmname
+        {
+            Ensure = 'Present'
+            DSCModule = 'Bla'
+        }
+
+        PendingReboot herstart
+        {
+            Name             = "Herstart"
+            SkipCcmClientSDK = $true 
+        }
+
+        DnsServerAddress setdns
+        {
+            Address = $Node.IPDC01
+            InterfaceAlias = 'Ethernet'
+            AddressFamily = 'IPv4'
+        }
+
+        Computer JoinDomain
+        {
+            Name       = 'localhost'
+            DomainName    = $Node.DomainName
+            Credential = $Credential
+            DependsOn = '[cVMName]vmname','[DnsServerAddress]setdns'
+        }
+
+        WindowsFeature Framework3
+        {
+            Name = "NET-Framework-Core"
+            Ensure = "Present"
+            Source = $Node.SourceNET3
+        }
+
+        
+    }
 }
 
 if( $null -eq $credential )
