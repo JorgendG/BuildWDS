@@ -64,6 +64,9 @@
             NodeName = "Syslog"
             PSDscAllowDomainUser = $true
             SourceNET3 = '\\hyperdrive\public\sxs\2016\sxs'
+            # vcredist_x86_2010
+            SourceVCx862010 = '\\hyperdrive\public\syslog\vcredist_x86_2010.exe'
+            SourceVCx862013 = '\\hyperdrive\public\syslog\vcredist_x86_2013.exe'
             SourceKiwi = '\\hyperdrive\public\syslog\Kiwi_Syslog_Server_9.7.2.Eval.setup.exe'
         }
 

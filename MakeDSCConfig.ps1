@@ -791,13 +791,81 @@ configuration HomelabConfig
             Source = $Node.SourceNET3
         }
 
-        
+        File vcredist_x86_2010
+        {
+            Ensure = 'Present'
+            Type = 'File'
+            SourcePath = $Node.SourceVCx862010
+            DestinationPath = 'c:\Windows\temp\SourceVCx862010.exe'
+            Credential = $ShareCredentials
+            MatchSource = $false
+        }
+
+        Package SourceVCx862010 {
+            Ensure    = "Present"
+            Name      = "Microsoft Visual C++ 2010  x86 Redistributable - 10.0.30319"
+            Path      = 'c:\Windows\temp\SourceVCx862010.exe'
+            ProductId = ''
+            Arguments = "/q"
+            LogPath   = "C:\windows\temp\SourceVCx862010.log"
+            DependsOn = '[File]vcredist_x86_2010'
+        }
+
+        File vcredist_x86_2013
+        {
+            Ensure = 'Present'
+            Type = 'File'
+            SourcePath = $Node.SourceVCx862013
+            DestinationPath = 'c:\Windows\temp\SourceVCx862013.exe'
+            Credential = $ShareCredentials
+            MatchSource = $false
+        }
+
+        Package SourceVCx862013 {
+            Ensure    = "Present"
+            Name      = "Microsoft Visual C++ 2013 x86 Minimum Runtime - 12.0.21005"
+            Path      = 'c:\Windows\temp\SourceVCx862013.exe'
+            ProductId = ''
+            Arguments = "/q"
+            LogPath   = "C:\windows\temp\SourceVCx862013.log"
+            DependsOn = '[File]vcredist_x86_2013'
+        }
+
+        File KiwiSetupfile
+        {
+            Ensure = 'Present'
+            Type = 'File'
+            SourcePath = $Node.SourceKiwi
+            DestinationPath = 'c:\Windows\temp\Kiwisetup.exe'
+            Credential = $ShareCredentials
+            MatchSource = $false
+        }
+# start "kiwisyslog" /wait "%syslogsourcedir%\%syslogsetupfile%" /S INSTALL=SERVICE /D="%sysloginstallpath%"
+
+
+        Package Kiwisetup {
+            Ensure    = "Present"
+            Name      = "Kiwi Syslog Server 9.7.2  (Service Edition)"
+            Path      = 'c:\Windows\temp\Kiwisetup.exe'
+            ProductId = ''
+            Arguments = "/S INSTALL=SERVICE"
+            LogPath   = "C:\windows\temp\Kiwisetup.log"
+            DependsOn = '[File]KiwiSetupfile'
+        }
     }
 }
 
-if( $null -eq $credential )
+if( (Test-Path -Path c:\Windows\Temp\credpwd.txt) -and (Test-Path -Path c:\Windows\Temp\credusr.txt) )
 {
-    $credential = Get-Credential -Message "Remote credentials"
+    $credpwd = Get-Content c:\Windows\Temp\credpwd.txt | ConvertTo-SecureString
+    $usr = Get-Content c:\Windows\Temp\credusr.txt
+    $credential = New-Object System.Management.Automation.PsCredential($usr, $credpwd)
+}
+else
+{
+    $credential = Get-Credential -Message "Domain credentials"
+    $credential.UserName | Set-Content c:\Windows\Temp\credusr.txt
+    $credential.Password | ConvertFrom-SecureString | Set-Content c:\Windows\Temp\credpwd.txt
 }
 
 $SharePwd = "P@ssword!" | ConvertTo-SecureString -AsPlainText -Force
