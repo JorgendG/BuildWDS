@@ -840,8 +840,6 @@ configuration HomelabConfig
             Credential = $ShareCredentials
             MatchSource = $false
         }
-# start "kiwisyslog" /wait "%syslogsourcedir%\%syslogsetupfile%" /S INSTALL=SERVICE /D="%sysloginstallpath%"
-
 
         Package Kiwisetup {
             Ensure    = "Present"
@@ -864,8 +862,8 @@ if( (Test-Path -Path c:\Windows\Temp\credpwd.txt) -and (Test-Path -Path c:\Windo
 else
 {
     $credential = Get-Credential -Message "Domain credentials"
-    $credential.UserName | Set-Content c:\Windows\Temp\credusr.txt
-    $credential.Password | ConvertFrom-SecureString | Set-Content c:\Windows\Temp\credpwd.txt
+    $credential.UserName | Set-Content c:\Windows\Temp\credusr.txt -Force
+    $credential.Password | ConvertFrom-SecureString | Set-Content c:\Windows\Temp\credpwd.txt -force
 }
 
 $SharePwd = "P@ssword!" | ConvertTo-SecureString -AsPlainText -Force
