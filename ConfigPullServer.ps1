@@ -1,8 +1,7 @@
 start-transcript -path c:\windows\temp\configpullserver.txt
 
-$sslcert = Get-ChildItem -Path "Cert:\LocalMachine\My" | Where-Object { $_.Subject -eq 'CN=wds01' -and $_.Issuer -eq 'CN=wds01'  }
-if( $null -eq $sslcert )
-{
+$sslcert = Get-ChildItem -Path "Cert:\LocalMachine\My" | Where-Object { $_.Subject -eq 'CN=wds01' -and $_.Issuer -eq 'CN=wds01' }
+if ( $null -eq $sslcert ) {
     $sslcert = New-SelfSignedCertificate -DnsName "wds01", "wds01.homelabdc22.local" -CertStoreLocation "cert:\LocalMachine\My"
     $cert = Get-ChildItem -Path "Cert:\LocalMachine\My\$($sslcert.Thumbprint)"
 
@@ -12,7 +11,7 @@ if( $null -eq $sslcert )
 configuration PullServerSQL 
 {
     param(
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [ValidateNotNullorEmpty()]
         [PsCredential] $ShareCredentials
     )
@@ -21,6 +20,7 @@ configuration PullServerSQL
     Import-DscResource -ModuleName xPSDesiredStateConfiguration
     Import-DscResource -ModuleName ComputerManagementDsc
     Import-DscResource -ModuleName NetworkingDsc
+    Import-DscResource -ModuleName DnsServerDsc
     Import-DscResource -ModuleName SqlServerDsc
     Import-DscResource -ModuleName cWDS
     
@@ -30,36 +30,56 @@ configuration PullServerSQL
         {
             Name             = "Reboot"
             SkipCcmClientSDK = $true 
-	    }
+        }
 
-        File managementagentx64
+        NetIPInterface DisableDhcp
         {
-            Ensure = 'Present'
-            Type = 'File'
-            SourcePath = $Node.SourcePathXenAgent
+            InterfaceAlias = 'Ethernet'
+            AddressFamily  = 'IPv4'
+            Dhcp           = 'Disabled'
+        }
+
+        IPAddress ip
+        {
+            IPAddress = "$($Node.IPAddress)"+"/24"
+            InterfaceAlias = 'Ethernet'
+            AddressFamily  = 'IPv4'
+            DependsOn      = '[NetIPInterface]DisableDhcp'
+        }
+        
+        DefaultGatewayAddress SetDefaultGateway
+        {
+            Address        = '192.168.1.1'
+            InterfaceAlias = 'Ethernet'
+            AddressFamily  = 'IPv4'
+            DependsOn      = '[NetIPInterface]DisableDhcp'
+        }
+
+        File managementagentx64 {
+            Ensure          = 'Present'
+            Type            = 'File'
+            SourcePath      = $Node.SourcePathXenAgent
             DestinationPath = 'c:\Windows\temp\managementagentx64.msi'
-            Credential = $ShareCredentials
-            MatchSource = $false
+            Credential      = $ShareCredentials
+            MatchSource     = $false
         }
 
-        Package CitrixHypervisorPVTools
-        {
-            Ensure      = "Present" 
-            Path        = "c:\Windows\temp\managementagentx64.msi"
-            Name        = "Citrix Hypervisor PV Tools"
-            ProductId   = "AC81AF0E-19F5-4A4F-B891-76166BF348ED"
-            Arguments   = "/Lv c:\windows\temp\managementagentx64.log.txt /quiet /norestart"
-            DependsOn   = '[File]managementagentx64'
+        Package CitrixHypervisorPVTools {
+            Ensure    = "Present" 
+            Path      = "c:\Windows\temp\managementagentx64.msi"
+            Name      = "Citrix Hypervisor PV Tools"
+            ProductId = "AC81AF0E-19F5-4A4F-B891-76166BF348ED"
+            Arguments = "/Lv c:\windows\temp\managementagentx64.log.txt /quiet /norestart"
+            DependsOn = '[File]managementagentx64'
         }
 
-        File sqlmanagement
-        {
-            Ensure = 'Present'
-            Type = 'File'
-            SourcePath = $Node.SourcePathSQLMgt
+        File sqlmanagement {
+            Ensure          = 'Present'
+            Type            = 'File'
+            SourcePath      = $Node.SourcePathSQLMgt
             DestinationPath = 'c:\Windows\temp\SSMS-Setup-ENU.exe'
-            Credential = $ShareCredentials
-            MatchSource = $false
+            Credential      = $ShareCredentials
+            MatchSource     = $false
         }
 
         Package SSMS {
@@ -72,44 +92,40 @@ configuration PullServerSQL
             DependsOn = '[File]sqlmanagement'
         }
 
-        WindowsFeature dscservice 
-        {
+        WindowsFeature dscservice {
             Name   = 'Dsc-Service'
             Ensure = 'Present'
         }
 
-        File PullServerFiles 
-        {
+        File PullServerFiles {
             DestinationPath = 'c:\pullserver'
-            Ensure = 'Present'
-            Type = 'Directory'
-            Force = $true
+            Ensure          = 'Present'
+            Type            = 'Directory'
+            Force           = $true
         }
 
-        WindowsFeature 'NetFramework45'
-        {
+        WindowsFeature 'NetFramework45' {
             Name   = 'NET-Framework-45-Core'
             Ensure = 'Present'
         }
 
-        File SQLServerFiles 
-        {
-            SourcePath = $Node.SourcePathSQL
+        File SQLServerFiles {
+            SourcePath      = $Node.SourcePathSQL
             DestinationPath = 'c:\pullserver\sql'
-            Ensure = 'Present'
-            Type = 'Directory'
-            Recurse = $true
+            Ensure          = 'Present'
+            Type            = 'Directory'
+            Recurse         = $true
         }
     
         SqlSetup SqlExpress
         {
-            InstanceName           = 'SQLEXPRESS'
-            Features               = 'SQLENGINE'
-            SQLSysAdminAccounts    = 'BUILTIN\Administrators', 'NT AUTHORITY\SYSTEM'
-            SourcePath             = 'c:\pullserver\sql'
-            UpdateEnabled          = $false
-            ForceReboot            = $false
-            DependsOn              = '[WindowsFeature]NetFramework45','[File]SQLServerFiles'
+            InstanceName        = 'SQLEXPRESS'
+            Features            = 'SQLENGINE'
+            SQLSysAdminAccounts = 'BUILTIN\Administrators', 'NT AUTHORITY\SYSTEM'
+            SourcePath          = 'c:\pullserver\sql'
+            UpdateEnabled       = $false
+            ForceReboot         = $false
+            DependsOn           = '[WindowsFeature]NetFramework45', '[File]SQLServerFiles'
         }
 
         xDscWebService PSDSCPullServer 
@@ -133,20 +149,19 @@ configuration PullServerSQL
 
         Firewall Pullserver
         {
-            Name                  = 'DSCPullServer_IIS_Port'
-            DisplayName           = 'DSCPullServer_IIS_Port'
-            Ensure                = 'Present'
-            Enabled               = 'True'
-            Profile               = ('Domain', 'Private', 'Public')
-            Direction             = 'InBound'
-            LocalPort             = ('8080')
-            Protocol              = 'TCP'
-            Description           = 'DSC Pullserver'
-            DependsOn             = '[xDSCWebService]PSDSCPullServer'
+            Name        = 'DSCPullServer_IIS_Port'
+            DisplayName = 'DSCPullServer_IIS_Port'
+            Ensure      = 'Present'
+            Enabled     = 'True'
+            Profile     = ('Domain', 'Private', 'Public')
+            Direction   = 'InBound'
+            LocalPort   = ('8080')
+            Protocol    = 'TCP'
+            Description = 'DSC Pullserver'
+            DependsOn   = '[xDSCWebService]PSDSCPullServer'
         }
 
-        File RegistrationKeyFile 
-        {
+        File RegistrationKeyFile {
             Ensure          = 'Present'
             Type            = 'File'
             DestinationPath = "c:\pullserver\RegistrationKeys.txt"
@@ -154,90 +169,82 @@ configuration PullServerSQL
             DependsOn       = '[File]PullServerFiles'
         }
 
-        File wdscert
-        {
-            Ensure = 'Present'
-            Type = 'File'
-            SourcePath = "C:\windows\temp\wds01.cer"
+        File wdscert {
+            Ensure          = 'Present'
+            Type            = 'File'
+            SourcePath      = "C:\windows\temp\wds01.cer"
             DestinationPath = 'c:\inetpub\wwwroot\wds01.cer.txt'
-            DependsOn = '[xDscWebService]PSDSCPullServer'
-            MatchSource = $false
+            DependsOn       = '[xDscWebService]PSDSCPullServer'
+            MatchSource     = $false
         }
 
-        File DscPublicKey
-        {
-            Ensure = 'Present'
-            Type = 'File'
-            SourcePath = "C:\windows\temp\DscPublicKey.cer"
+        File DscPublicKey {
+            Ensure          = 'Present'
+            Type            = 'File'
+            SourcePath      = "C:\windows\temp\DscPublicKey.cer"
             DestinationPath = 'c:\pullserver\DscPublicKey.cer'
-            DependsOn = '[xDscWebService]PSDSCPullServer'
-            MatchSource = $false
+            DependsOn       = '[xDscWebService]PSDSCPullServer'
+            MatchSource     = $false
         }
 
-        WindowsFeature 'WDS'
-        {
-            Name   = 'WDS'
-            Ensure = 'Present'
+        WindowsFeature 'WDS' {
+            Name                 = 'WDS'
+            Ensure               = 'Present'
             IncludeAllSubFeature = $true
         }
 
-        File wdsimagesfolder 
-        {
+        File wdsimagesfolder {
             DestinationPath = 'c:\wdsimages'
-            Ensure = 'Present'
-            Type = 'Directory'
-            Force = $true
+            Ensure          = 'Present'
+            Type            = 'Directory'
+            Force           = $true
         }
 
         cWDSInitialize InitWDS
         {
-            Ensure = 'Present'
+            Ensure     = 'Present'
             RootFolder = "c:\remoteinstall"
-            DependsOn = '[WindowsFeature]WDS'
+            DependsOn  = '[WindowsFeature]WDS'
         }
 
-        Foreach($WimFile in $ConfigurationData.WimFiles)
-        {
-            File "FileCopy-$($WimFile.Name)" 
-            {
-                Ensure = 'Present'
-                Type = 'File'
-                DependsOn = '[File]wdsimagesfolder'
-                SourcePath = $WimFile.SourcePath
+        Foreach ($WimFile in $ConfigurationData.WimFiles) {
+            File "FileCopy-$($WimFile.Name)" {
+                Ensure          = 'Present'
+                Type            = 'File'
+                DependsOn       = '[File]wdsimagesfolder'
+                SourcePath      = $WimFile.SourcePath
                 DestinationPath = $WimFile.DestinationPath
-                Credential = $ShareCredentials
+                Credential      = $ShareCredentials
             }
 
             cWDSInstallImage "WDSInstallImage-$($WimFile.Name)"
             {
-                Ensure = 'Present'
-                ImageName = $WimFile.ImageName
-                GroupName = $WimFile.GroupName
-                Path = $WimFile.DestinationPath
+                Ensure       = 'Present'
+                ImageName    = $WimFile.ImageName
+                GroupName    = $WimFile.GroupName
+                Path         = $WimFile.DestinationPath
                 Unattendfile = $WimFile.Unattendfile
-                DependsOn = '[cWDSInitialize]InitWDS',"[File]FileCopy-$($WimFile.Name)" 
+                DependsOn    = '[cWDSInitialize]InitWDS', "[File]FileCopy-$($WimFile.Name)" 
             }
         }
       
         cWDSServerAnswer answerAll
         {
-            Ensure = 'Present'
-            Answer = 'all'
+            Ensure    = 'Present'
+            Answer    = 'all'
             DependsOn = '[cWDSInitialize]InitWDS'
         }
 
-        Foreach($DSCModule in $ConfigurationData.DSCModules)
-        {
+        Foreach ($DSCModule in $ConfigurationData.DSCModules) {
             cDSCModule "DSCModule-$($DSCModule.Name)"
             {
-                Ensure      = 'Present'
-                DSCModule   = $DSCModule.Name
-                DependsOn   = '[xDscWebService]PSDSCPullServer'
+                Ensure    = 'Present'
+                DSCModule = $DSCModule.Name
+                DependsOn = '[xDscWebService]PSDSCPullServer'
             }
         }
 
-        foreach ($RemoteFile in $RemoteFiles)
-        {
+        foreach ($RemoteFile in $RemoteFiles) {
             xRemoteFile "xRemoteFile-$($RemoteFile.Name)"
             {
                 DestinationPath = $RemoteFile.DestinationPath
@@ -246,11 +253,42 @@ configuration PullServerSQL
             }
         }
 
-        WindowsFeature 'Web-Mgmt-Console'
-        {
-            Name   = 'Web-Mgmt-Console'
-            Ensure = 'Present'
+        WindowsFeature 'Web-Mgmt-Console' {
+            Name                 = 'Web-Mgmt-Console'
+            Ensure               = 'Present'
             IncludeAllSubFeature = $true
+        }
+
+        WindowsFeature 'DNS' {
+            Name      = 'DNS'
+            Ensure    = 'Present'
+            DependsOn = '[IPAddress]ip'
+        }
+
+        WindowsFeature 'DNSMgmt' {
+            Name   = 'RSAT-DNS-Server'
+            Ensure = 'Present'
+        }
+        DnsServerForwarder SetDNSForwarders
+        {
+            IsSingleInstance = 'Yes'
+            IPAddresses      = @('8.8.8.8')
+            UseRootHint      = $false
+        }
+
+        DnsServerConditionalForwarder SetDNSCondForwarder
+        {
+            Name          = 'homelabdc22.local'
+            MasterServers = @('192.168.1.22')
+            Ensure        = 'Present'
+        }
+
+        DnsServerAddress setdns
+        {
+            Address        = $Node.IPAddress
+            InterfaceAlias = 'Ethernet 2'
+            AddressFamily  = 'IPv4'
+            DependsOn      = '[DnsServerForwarder]SetDNSForwarders'
         }
     }
 }
@@ -258,30 +296,30 @@ configuration PullServerSQL
 # Configure the LCM
 Configuration ConfigureLCM {
     Node $AllNodes.NodeName {
-         LocalConfigurationManager {
+        LocalConfigurationManager {
             RebootNodeIfNeeded = $true
-            RefreshMode = 'Push'
-            ConfigurationMode = 'ApplyAndAutoCorrect'
-            ActionAfterReboot = 'ContinueConfiguration'
-         }
-     }
- }
+            RefreshMode        = 'Push'
+            ConfigurationMode  = 'ApplyAndAutoCorrect'
+            ActionAfterReboot  = 'ContinueConfiguration'
+        }
+    }
+}
  
- $scriptpath = Split-Path $MyInvocation.MyCommand.Path -Parent
-  # Compile the LCM Config
- ConfigureLCM `
-       -OutputPath . `
-       -ConfigurationData "$scriptpath\ConfigPullServer.psd1"
+$scriptpath = Split-Path $MyInvocation.MyCommand.Path -Parent
+# Compile the LCM Config
+ConfigureLCM `
+    -OutputPath . `
+    -ConfigurationData "$scriptpath\ConfigPullServer.psd1"
 
 $SharePwd = "Welkom2020!" | ConvertTo-SecureString -AsPlainText -Force
 $ShareUserName = "hyperdrive\readonly"
 $ShareCredentials = New-Object System.Management.Automation.PSCredential -ArgumentList $ShareUserName, $SharePwd
 
-  # Apply the LCM Config
- Set-DscLocalConfigurationManager `
-       -Path .\ConfigureLCM\ `
-       -ComputerName Localhost `
-       -Verbose
+# Apply the LCM Config
+Set-DscLocalConfigurationManager `
+    -Path .\ConfigureLCM\ `
+    -ComputerName Localhost `
+    -Verbose
 
 PullServerSQL -ShareCredentials $ShareCredentials -ConfigurationData "$scriptpath\ConfigPullServer.psd1"
 Start-DscConfiguration -Path .\PullServerSQL -Verbose -wait -Force
