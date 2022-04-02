@@ -55,6 +55,14 @@ configuration PullServerSQL
             DependsOn      = '[NetIPInterface]DisableDhcp'
         }
 
+        DnsServerAddress setdns
+        {
+            Address        = '8.8.8.8'
+            InterfaceAlias = 'Ethernet'
+            AddressFamily  = 'IPv4'
+            DependsOn      = '[IPAddress]ip'
+        }
+
         File managementagentx64 {
             Ensure          = 'Present'
             Type            = 'File'
@@ -259,7 +267,7 @@ configuration PullServerSQL
             IncludeAllSubFeature = $true
         }
 
-        WindowsFeature 'DNS' {
+        WindowsFeature DNS {
             Name      = 'DNS'
             Ensure    = 'Present'
             DependsOn = '[IPAddress]ip'
@@ -274,6 +282,7 @@ configuration PullServerSQL
             IsSingleInstance = 'Yes'
             IPAddresses      = @('8.8.8.8')
             UseRootHint      = $false
+            DependsOn        = '[WindowsFeature]DNS'
         }
 
         DnsServerConditionalForwarder SetDNSCondForwarder
@@ -281,6 +290,7 @@ configuration PullServerSQL
             Name          = 'homelabdc22.local'
             MasterServers = @('192.168.1.22')
             Ensure        = 'Present'
+            DependsOn     = '[WindowsFeature]DNS'
         }
 
         DnsServerAddress setdns
@@ -288,7 +298,7 @@ configuration PullServerSQL
             Address        = $Node.IPAddress
             InterfaceAlias = 'Ethernet 2'
             AddressFamily  = 'IPv4'
-            DependsOn      = '[DnsServerForwarder]SetDNSForwarders'
+            DependsOn      = '[WindowsFeature]DNS'
         }
     }
 }
