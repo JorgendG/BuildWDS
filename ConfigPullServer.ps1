@@ -32,37 +32,6 @@ configuration PullServerSQL
             SkipCcmClientSDK = $true 
         }
 
-        NetIPInterface DisableDhcp
-        {
-            InterfaceAlias = 'Ethernet'
-            AddressFamily  = 'IPv4'
-            Dhcp           = 'Disabled'
-        }
-
-        IPAddress ip
-        {
-            IPAddress = "$($Node.IPAddress)"+"/24"
-            InterfaceAlias = 'Ethernet'
-            AddressFamily  = 'IPv4'
-            DependsOn      = '[NetIPInterface]DisableDhcp'
-        }
-        
-        DefaultGatewayAddress SetDefaultGateway
-        {
-            Address        = '192.168.1.1'
-            InterfaceAlias = 'Ethernet'
-            AddressFamily  = 'IPv4'
-            DependsOn      = '[NetIPInterface]DisableDhcp'
-        }
-
-        DnsServerAddress setdnsfirst
-        {
-            Address        = '8.8.8.8'
-            InterfaceAlias = 'Ethernet'
-            AddressFamily  = 'IPv4'
-            DependsOn      = '[IPAddress]ip'
-        }
-
         File managementagentx64 {
             Ensure          = 'Present'
             Type            = 'File'
@@ -267,6 +236,37 @@ configuration PullServerSQL
             IncludeAllSubFeature = $true
         }
 
+        NetIPInterface DisableDhcp
+        {
+            InterfaceAlias = 'Ethernet 2'
+            AddressFamily  = 'IPv4'
+            Dhcp           = 'Disabled'
+        }
+
+        IPAddress ip
+        {
+            IPAddress = "$($Node.IPAddress)"+"/24"
+            InterfaceAlias = 'Ethernet 2'
+            AddressFamily  = 'IPv4'
+            DependsOn      = '[NetIPInterface]DisableDhcp'
+        }
+        
+        DefaultGatewayAddress SetDefaultGateway
+        {
+            Address        = '192.168.1.1'
+            InterfaceAlias = 'Ethernet 2'
+            AddressFamily  = 'IPv4'
+            DependsOn      = '[NetIPInterface]DisableDhcp'
+        }
+
+        DnsServerAddress setdnsfirst
+        {
+            Address        = '8.8.8.8'
+            InterfaceAlias = 'Ethernet 2'
+            AddressFamily  = 'IPv4'
+            DependsOn      = '[IPAddress]ip'
+        }
+
         WindowsFeature DNS {
             Name   = 'DNS'
             Ensure = 'Present'
@@ -292,13 +292,6 @@ configuration PullServerSQL
             DependsOn     = '[WindowsFeature]DNS'
         }
 
-        DnsServerAddress setdns
-        {
-            Address        = $Node.IPAddress
-            InterfaceAlias = 'Ethernet 2'
-            AddressFamily  = 'IPv4'
-            DependsOn      = '[WindowsFeature]DNS'
-        }
     }
 }
 
