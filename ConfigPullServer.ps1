@@ -55,7 +55,7 @@ configuration PullServerSQL
             DependsOn      = '[NetIPInterface]DisableDhcp'
         }
 
-        DnsServerAddress setdns
+        DnsServerAddress setdnsfirst
         {
             Address        = '8.8.8.8'
             InterfaceAlias = 'Ethernet'
@@ -268,9 +268,8 @@ configuration PullServerSQL
         }
 
         WindowsFeature DNS {
-            Name      = 'DNS'
-            Ensure    = 'Present'
-            DependsOn = '[IPAddress]ip'
+            Name   = 'DNS'
+            Ensure = 'Present'
         }
 
         WindowsFeature 'DNSMgmt' {
