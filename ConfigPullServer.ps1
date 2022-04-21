@@ -221,7 +221,7 @@ configuration PullServerSQL
             }
         }
 
-        foreach ($RemoteFile in $RemoteFiles) {
+        foreach ($RemoteFile in $ConfigurationData.RemoteFiles) {
             xRemoteFile "xRemoteFile-$($RemoteFile.Name)"
             {
                 DestinationPath = $RemoteFile.DestinationPath
