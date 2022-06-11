@@ -23,6 +23,7 @@ configuration PullServerSQL
     Import-DscResource -ModuleName DnsServerDsc
     Import-DscResource -ModuleName SqlServerDsc
     Import-DscResource -ModuleName cWDS
+    Import-DscResource -ModuleName xDefender
     
     node localhost
     {
@@ -175,6 +176,12 @@ configuration PullServerSQL
             Ensure          = 'Present'
             Type            = 'Directory'
             Force           = $true
+        }
+
+        xMpPreference notscanWdsImages
+        {
+            Name          = 'wdsimages'
+            ExclusionPath = 'c:\wdsimages'
         }
 
         cWDSInitialize InitWDS

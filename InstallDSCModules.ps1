@@ -5,6 +5,7 @@ Install-Module -Name ComputerManagementDsc -Force
 Install-Module -Name SqlServerDsc -Force
 Install-Module -Name NetworkingDsc -Force
 Install-Module -Name DnsServerDsc -Force
+Install-Module -Name xDefender -Force
 
 Unregister-ScheduledTask -TaskName 'InstallDSCModules' -Confirm:$false
 
