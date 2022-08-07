@@ -178,6 +178,13 @@ configuration PullServerSQL
             Force           = $true
         }
 
+        File remoteInstallfolder {
+            DestinationPath = 'c:\remoteinstall'
+            Ensure          = 'Present'
+            Type            = 'Directory'
+            Force           = $true
+        }
+
         xMpPreference notscanWdsImages
         {
             Name          = 'wdsimages'
