@@ -240,6 +240,7 @@ configuration PullServerSQL
             {
                 DestinationPath = $RemoteFile.DestinationPath
                 Uri             = $RemoteFile.Uri
+                
                 DependsOn       = '[File]PullServerFiles'
             }
         }
@@ -327,7 +328,7 @@ ConfigureLCM `
     -OutputPath . `
     -ConfigurationData "$scriptpath\ConfigPullServer.psd1"
 
-$SharePwd = "Welkom2020!" | ConvertTo-SecureString -AsPlainText -Force
+$SharePwd = "P@ssword!" | ConvertTo-SecureString -AsPlainText -Force
 $ShareUserName = "hyperdrive\readonly"
 $ShareCredentials = New-Object System.Management.Automation.PSCredential -ArgumentList $ShareUserName, $SharePwd
 
