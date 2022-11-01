@@ -240,7 +240,6 @@ configuration PullServerSQL
             {
                 DestinationPath = $RemoteFile.DestinationPath
                 Uri             = $RemoteFile.Uri
-                
                 DependsOn       = '[File]PullServerFiles'
             }
         }
