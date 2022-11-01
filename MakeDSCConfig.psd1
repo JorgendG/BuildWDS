@@ -7,6 +7,7 @@
             PSDscAllowDomainUser = $true
             DomainName           = "homelabdc22.local"
             IPDC01               = "192.168.1.22"
+            IPDC02               = "192.168.1.23"
             sourcesql            = '\\hyperdrive\public\sql\2017express'
 
         },
