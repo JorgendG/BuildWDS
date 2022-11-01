@@ -826,7 +826,7 @@ configuration HomelabConfig
 
         DnsServerAddress setdns
         {
-            Address        = $Node.IPDC02
+            Address        = $Node.IPDC01
             InterfaceAlias = 'Ethernet'
             AddressFamily  = 'IPv4'
         }
