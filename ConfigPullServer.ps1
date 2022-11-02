@@ -301,7 +301,7 @@ configuration PullServerSQL
         DnsServerConditionalForwarder SetDNSCondForwarder
         {
             Name          = 'homelabdc22.local'
-            MasterServers = @('192.168.1.22')
+            MasterServers = @('192.168.1.22', '192.168.1.23')
             Ensure        = 'Present'
             DependsOn     = '[WindowsFeature]DNS'
         }
