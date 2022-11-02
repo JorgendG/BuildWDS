@@ -44,15 +44,22 @@
             GroupName       = 'Windows Server 2016'
             Unattendfile    = 'install2016.xml'
         },
-        @{
+        <#@{
             Name            = 'Server2012R2'
             SourcePath      = "\\hyperdrive\public\wim\install2012r2.wim"
             DestinationPath = 'c:\wdsimages\install2012r2.wim'
             ImageName       = 'Windows Server 2012 R2 SERVERSTANDARD'
             GroupName       = 'Windows Server 2012R2'
             Unattendfile    = 'install2012r2.xml'
+        },#>
+        @{
+            Name            = 'Server2012R2'
+            SourcePath      = "\\hyperdrive\public\wim\install2012r2wmf5.wim"
+            DestinationPath = 'c:\wdsimages\install2012r2wmf5.wim'
+            ImageName       = 'Windows Server 2012 R2 SERVERSTANDARD'
+            GroupName       = 'Windows Server 2012R2'
+            Unattendfile    = 'install2012r2.xml'
         },
-        ,
         @{
             Name            = 'Windows10'
             SourcePath      = "\\hyperdrive\public\wim\installw10_19h2.wim"
@@ -60,8 +67,7 @@
             ImageName       = 'Windows 10 Enterprise Evaluation'
             GroupName       = 'Windows 10'
             Unattendfile    = 'installwin10.xml'
-        }
-        ,
+        },
         @{
             Name            = 'Windows11'
             SourcePath      = "\\hyperdrive\public\wim\installw11.wim"
