@@ -964,9 +964,16 @@ configuration HomelabConfig
             Type            = 'Directory'
             Recurse         = $true
             SourcePath      = $Node.ExchangeSource
-            DestinationPath = 'C:\Binaries\E15CU6'
+            DestinationPath = 'C:\Binaries\E2013CU23'
             Credential      = $ShareCredentials
             MatchSource     = $false
+        }
+
+        xExchInstall InstallExchange {
+            Path       = 'C:\Binaries\E2013U23\Setup.exe'
+            Arguments  = '/mode:Install /role:ClientAccess,Mailbox /OrganizationName:Homelab /Iacceptexchangeserverlicenseterms'
+            Credential = $Credential
+            DependsOn  = '[File]ExchangeBinaries'
         }
     }
 }
