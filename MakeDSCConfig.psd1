@@ -79,6 +79,11 @@
             SourceVCx862010      = '\\hyperdrive\public\syslog\vcredist_x86_2010.exe'
             SourceVCx862013      = '\\hyperdrive\public\syslog\vcredist_x86_2013.exe'
             SourceKiwi           = '\\hyperdrive\public\syslog\Kiwi_Syslog_Server_9.7.2.Eval.setup.exe'
+        },
+        @{
+            NodeName             = "Exchange"
+            PSDscAllowDomainUser = $true
+            SourceExchange       = '\\hyperdrive\public\Exchange\2013u23'
         }
 
     )

@@ -20,31 +20,28 @@ configuration HomelabConfig
     Import-DscResource -ModuleName 'NetworkingDsc'
     Import-DscResource -ModuleName 'XenDesktop7'
     Import-DscResource -ModuleName 'SqlServerDsc'
-    Import-DscResource -ModuleName 'xDnsServer' 
+    Import-DscResource -ModuleName 'xDnsServer'
+    Import-DscResource -ModuleName 'xExchange' 
 
     Node 'subCA'
     {
-        cVMName vmname
-        {
+        cVMName vmname {
             Ensure    = 'Present'
             DSCModule = 'Bla1'
         }
 
-        DnsServerAddress setdns
-        {
+        DnsServerAddress setdns {
             Address        = $Node.IPDC01
             InterfaceAlias = 'Ethernet'
             AddressFamily  = 'IPv4'
         }
 
-        PendingReboot herstart
-        {
+        PendingReboot herstart {
             Name             = "Herstart"
             SkipCcmClientSDK = $true 
         }
 
-        Computer JoinDomain
-        {
+        Computer JoinDomain {
             Name       = 'localhost'
             DomainName = $Node.DomainName
             Credential = $Credential # Credential to join to domain
@@ -66,16 +63,14 @@ configuration HomelabConfig
             DependsOn       = '[File]CAPolicy'
         }
 
-        xRemoteFile DownloadRootCACRTFile
-        {
+        xRemoteFile DownloadRootCACRTFile {
             DestinationPath = "C:\Windows\System32\CertSrv\CertEnroll\$($Node.RootCAName)_$($Node.RootCACommonName).crt"
             Uri             = "http://$($Node.RootCAName)/CertEnroll/$($Node.RootCAName)_$($Node.RootCACommonName).crt"
             DependsOn       = '[File]CertEnrollFolder'
         }
  
         # Download the Root CA certificate revocation list.
-        xRemoteFile DownloadRootCACRLFile
-        {
+        xRemoteFile DownloadRootCACRLFile {
             DestinationPath = "C:\Windows\System32\CertSrv\CertEnroll\$($Node.RootCACommonName).crl"
             Uri             = "http://$($Node.RootCAName)/CertEnroll/$($Node.RootCACommonName).crl"
             DependsOn       = '[xRemoteFile]DownloadRootCACRTFile'
@@ -125,8 +120,7 @@ configuration HomelabConfig
             DependsOn = "[WindowsFeature]ADCS-Cert-Authority"
         }
 
-        ADCSCertificationAuthority ConfigCA
-        {
+        ADCSCertificationAuthority ConfigCA {
             IsSingleInstance          = 'Yes'
             Ensure                    = 'Present'
             Credential                = $Credential
@@ -166,8 +160,7 @@ configuration HomelabConfig
             DependsOn  = '[ADCSWebEnrollment]ConfigWebEnrollment'
         }
 
-        xRemoteFile DownloadSubCACERFile
-        {
+        xRemoteFile DownloadSubCACERFile {
             DestinationPath = "C:\Windows\System32\CertSrv\CertEnroll\$($Node.SubCAComputerName)_$($Node.CACommonName).crt"
             Uri             = "http://$($Node.RootCAName)/CertEnroll/$($Node.SubCAComputerName).crt"
             DependsOn       = '[Script]SetREQMimeType'
@@ -237,21 +230,18 @@ configuration HomelabConfig
 
     Node 'rootCA'
     {
-        cVMName vmname
-        {
+        cVMName vmname {
             Ensure    = 'Present'
             DSCModule = 'Bla'
         }
 
-        DnsServerAddress setdns
-        {
+        DnsServerAddress setdns {
             Address        = $Node.IPDC01
             InterfaceAlias = 'Ethernet'
             AddressFamily  = 'IPv4'
         }
 
-        PendingReboot herstart
-        {
+        PendingReboot herstart {
             Name             = "Herstart"
             SkipCcmClientSDK = $true 
         }
@@ -281,8 +271,7 @@ configuration HomelabConfig
             IncludeAllSubFeature = $true
         }
 
-        AdcsCertificationAuthority CertificateAuthority
-        {
+        AdcsCertificationAuthority CertificateAuthority {
             IsSingleInstance          = 'Yes'
             Ensure                    = 'Present'
             Credential                = $Credential
@@ -294,8 +283,7 @@ configuration HomelabConfig
             DependsOn                 = '[File]CAPolicy'
         }
 
-        ADCSWebEnrollment ConfigWebEnrollment
-        {
+        ADCSWebEnrollment ConfigWebEnrollment {
             IsSingleInstance = 'Yes'
             Ensure           = 'Present'
             #Name = 'ConfigWebEnrollment'
@@ -357,8 +345,7 @@ configuration HomelabConfig
         }
 
         Foreach ($SubCA in $Node.SubCAs) {
-            xRemoteFile "DownloadSubCA_$SubCA"
-            {
+            xRemoteFile "DownloadSubCA_$SubCA" {
                 DestinationPath = "C:\Windows\System32\CertSrv\CertEnroll\$SubCA.req"
                 Uri             = "http://$SubCA/CertEnroll/$SubCA.req"
                 DependsOn       = "[Script]ADCSAdvConfig"
@@ -402,27 +389,23 @@ configuration HomelabConfig
 
     Node 'Member'
     {
-        cVMName vmname
-        {
+        cVMName vmname {
             Ensure    = 'Present'
             DSCModule = 'Bla'
         }
 
-        PendingReboot herstart
-        {
+        PendingReboot herstart {
             Name             = "Herstart"
             SkipCcmClientSDK = $true 
         }
 
-        DnsServerAddress setdns
-        {
+        DnsServerAddress setdns {
             Address        = $Node.IPDC01
             InterfaceAlias = 'Ethernet'
             AddressFamily  = 'IPv4'
         }
 
-        Computer JoinDomain
-        {
+        Computer JoinDomain {
             Name       = 'localhost'
             DomainName = $Node.DomainName
             Credential = $Credential # Credential to join to domain
@@ -432,27 +415,23 @@ configuration HomelabConfig
 
     Node 'XDDC'
     {
-        cVMName vmname
-        {
+        cVMName vmname {
             Ensure    = 'Present'
             DSCModule = 'Bla'
         }
 
-        PendingReboot herstart
-        {
+        PendingReboot herstart {
             Name             = "Herstart"
             SkipCcmClientSDK = $true 
         }
 
-        DnsServerAddress setdns
-        {
+        DnsServerAddress setdns {
             Address        = $Node.IPDC01
             InterfaceAlias = 'Ethernet'
             AddressFamily  = 'IPv4'
         }
 
-        Computer JoinDomain
-        {
+        Computer JoinDomain {
             Name       = 'localhost'
             DomainName = $Node.DomainName
             Credential = $Credential # Credential to join to domain
@@ -465,8 +444,7 @@ configuration HomelabConfig
             DependsOn = '[Computer]JoinDomain'
         }
 
-        SqlSetup SqlExpress
-        {
+        SqlSetup SqlExpress {
             InstanceName        = 'SQLEXPRESS'
             Features            = 'SQLENGINE'
             SQLSysAdminAccounts = 'BUILTIN\Administrators', 'NT AUTHORITY\SYSTEM'
@@ -557,14 +535,12 @@ configuration HomelabConfig
 
     Node 'Web'
     {
-        cVMName vmname
-        {
+        cVMName vmname {
             Ensure    = 'Present'
             DSCModule = 'Bla'
         }
 
-        PendingReboot herstart
-        {
+        PendingReboot herstart {
             Name             = "Herstart"
             SkipCcmClientSDK = $true 
         }
@@ -584,23 +560,20 @@ configuration HomelabConfig
             Ensure = "Present"
         }
 
-        DnsServerAddress setdns
-        {
+        DnsServerAddress setdns {
             Address        = $Node.IPDC01
             InterfaceAlias = 'Ethernet'
             AddressFamily  = 'IPv4'
         }
 
-        Computer JoinDomain
-        {
+        Computer JoinDomain {
             Name       = 'localhost'
             DomainName = $Node.DomainName
             Credential = $Credential # Credential to join to domain
             DependsOn  = '[cVMName]vmname', '[DnsServerAddress]setdns'
         }
 
-        Firewall iis
-        {
+        Firewall iis {
             Name    = 'IIS-WebServerRole-HTTP-In-TCP'
             Ensure  = 'Present'
             Enabled = 'True'
@@ -609,14 +582,12 @@ configuration HomelabConfig
 
     Node 'DC'
     {
-        PendingReboot herstart
-        {
+        PendingReboot herstart {
             Name             = "Herstart"
             SkipCcmClientSDK = $true 
         }
 
-        cVMName vmname
-        {
+        cVMName vmname {
             Ensure    = 'Present'
             DSCModule = 'Bla'
         }
@@ -627,24 +598,21 @@ configuration HomelabConfig
             Type            = 'Directory'
         }
 
-        NetIPInterface DisableDhcp
-        {
+        NetIPInterface DisableDhcp {
             InterfaceAlias = 'Ethernet'
             AddressFamily  = 'IPv4'
             Dhcp           = 'Disabled'
         }
 
-        IPAddress ipDC
-        {
+        IPAddress ipDC {
             #$ConfigData.AllNodes[0].DomainName
-            IPAddress = "$($Node.IPDC01)"+"/24"
+            IPAddress      = "$($Node.IPDC01)" + "/24"
             InterfaceAlias = 'Ethernet'
             AddressFamily  = 'IPv4'
             DependsOn      = '[NetIPInterface]DisableDhcp'
         }
         
-        DefaultGatewayAddress SetDefaultGateway
-        {
+        DefaultGatewayAddress SetDefaultGateway {
             Address        = '192.168.1.1'
             InterfaceAlias = 'Ethernet'
             AddressFamily  = 'IPv4'
@@ -661,8 +629,7 @@ configuration HomelabConfig
             Name   = "RSAT-ADDS"             
         }     
 
-        ADDomain ConfigDC              
-        {             
+        ADDomain ConfigDC {             
             DomainName                    = $Node.DomainName
             Credential                    = $Credential
             SafemodeAdministratorPassword = $Credential
@@ -671,19 +638,17 @@ configuration HomelabConfig
             DependsOn                     = "[WindowsFeature]ADDSInstall", "[File]ADFiles", "[IPAddress]ipDC" , '[cVMName]vmname'         
         }
 
-        xDnsServerForwarder forward8888
-        {
+        xDnsServerForwarder forward8888 {
             IPAddresses      = '8.8.8.8'
             IsSingleInstance = 'Yes'
             DependsOn        = '[ADDomain]ConfigDC'
         }
 
         Foreach ($DNSRecord in $ConfigurationData.DNSRecords) {
-            DnsRecordA "DNSRecord-$($DNSRecord.Name)" 
-            {
+            DnsRecordA "DNSRecord-$($DNSRecord.Name)" {
                 Ensure      = 'Present'
                 Name        = $DNSRecord.Name
-                IPv4Address =  $DNSRecord.IPNumber
+                IPv4Address = $DNSRecord.IPNumber
                 ZoneName    = $Node.DomainName
             }
         }
@@ -691,14 +656,12 @@ configuration HomelabConfig
 
     Node 'DC22'
     {
-        PendingReboot herstart
-        {
+        PendingReboot herstart {
             Name             = "Herstart"
             SkipCcmClientSDK = $true 
         }
 
-        cVMName vmname
-        {
+        cVMName vmname {
             Ensure    = 'Present'
             DSCModule = 'Bla'
         }
@@ -709,32 +672,28 @@ configuration HomelabConfig
             Type            = 'Directory'
         }
 
-        NetIPInterface DisableDhcp
-        {
+        NetIPInterface DisableDhcp {
             InterfaceAlias = 'Ethernet'
             AddressFamily  = 'IPv4'
             Dhcp           = 'Disabled'
         }
 
-        IPAddress ipDC23
-        {
+        IPAddress ipDC23 {
             #$ConfigData.AllNodes[0].DomainName
-            IPAddress = "$($Node.IPDC01)"+"/24"
+            IPAddress      = "$($Node.IPDC01)" + "/24"
             InterfaceAlias = 'Ethernet'
             AddressFamily  = 'IPv4'
             DependsOn      = '[NetIPInterface]DisableDhcp'
         }
         
-        DefaultGatewayAddress SetDefaultGateway
-        {
+        DefaultGatewayAddress SetDefaultGateway {
             Address        = '192.168.1.1'
             InterfaceAlias = 'Ethernet'
             AddressFamily  = 'IPv4'
             DependsOn      = '[NetIPInterface]DisableDhcp'
         }
 
-        DnsServerAddress setdns
-        {
+        DnsServerAddress setdns {
             Address        = $Node.IPDC02
             InterfaceAlias = 'Ethernet'
             AddressFamily  = 'IPv4'
@@ -750,16 +709,14 @@ configuration HomelabConfig
             Name   = "RSAT-ADDS"             
         }
 
-        WaitForADDomain 'WaitForestAvailability'
-        {
+        WaitForADDomain 'WaitForestAvailability' {
             DomainName = $Node.DomainName
             Credential = $Credential
 
             DependsOn  = '[WindowsFeature]ADDSTools'
         }
 
-        ADDomainController 'DomainControllerMinimal'
-        {
+        ADDomainController 'DomainControllerMinimal' {
             DomainName                    = $Node.DomainName
             Credential                    = $Credential
             SafeModeAdministratorPassword = $Credential
@@ -768,11 +725,10 @@ configuration HomelabConfig
         }
 
         Foreach ($DNSRecord in $ConfigurationData.DNSRecords) {
-            DnsRecordA "DNSRecord-$($DNSRecord.Name)" 
-            {
+            DnsRecordA "DNSRecord-$($DNSRecord.Name)" {
                 Ensure      = 'Present'
                 Name        = $DNSRecord.Name
-                IPv4Address =  $DNSRecord.IPNumber
+                IPv4Address = $DNSRecord.IPNumber
                 ZoneName    = $Node.DomainName
             }
         }
@@ -782,14 +738,12 @@ configuration HomelabConfig
 
     Node 'DC23'
     {
-        PendingReboot herstart
-        {
+        PendingReboot herstart {
             Name             = "Herstart"
             SkipCcmClientSDK = $true 
         }
 
-        cVMName vmname
-        {
+        cVMName vmname {
             Ensure    = 'Present'
             DSCModule = 'Bla'
         }
@@ -800,32 +754,28 @@ configuration HomelabConfig
             Type            = 'Directory'
         }
 
-        NetIPInterface DisableDhcp
-        {
+        NetIPInterface DisableDhcp {
             InterfaceAlias = 'Ethernet'
             AddressFamily  = 'IPv4'
             Dhcp           = 'Disabled'
         }
 
-        IPAddress ipDC23
-        {
+        IPAddress ipDC23 {
             #$ConfigData.AllNodes[0].DomainName
-            IPAddress = "$($Node.IPDC02)"+"/24"
+            IPAddress      = "$($Node.IPDC02)" + "/24"
             InterfaceAlias = 'Ethernet'
             AddressFamily  = 'IPv4'
             DependsOn      = '[NetIPInterface]DisableDhcp'
         }
         
-        DefaultGatewayAddress SetDefaultGateway
-        {
+        DefaultGatewayAddress SetDefaultGateway {
             Address        = '192.168.1.1'
             InterfaceAlias = 'Ethernet'
             AddressFamily  = 'IPv4'
             DependsOn      = '[NetIPInterface]DisableDhcp'
         }
 
-        DnsServerAddress setdns
-        {
+        DnsServerAddress setdns {
             Address        = $Node.IPDC01
             InterfaceAlias = 'Ethernet'
             AddressFamily  = 'IPv4'
@@ -841,16 +791,14 @@ configuration HomelabConfig
             Name   = "RSAT-ADDS"             
         }
 
-        WaitForADDomain 'WaitForestAvailability'
-        {
+        WaitForADDomain 'WaitForestAvailability' {
             DomainName = $Node.DomainName
             Credential = $Credential
 
             DependsOn  = '[WindowsFeature]ADDSTools'
         }
 
-        ADDomainController 'DomainControllerMinimal'
-        {
+        ADDomainController 'DomainControllerMinimal' {
             DomainName                    = $Node.DomainName
             Credential                    = $Credential
             SafeModeAdministratorPassword = $Credential
@@ -863,27 +811,23 @@ configuration HomelabConfig
     
     Node 'Docker'
     {
-        cVMName vmname
-        {
+        cVMName vmname {
             Ensure    = 'Present'
             DSCModule = 'Bla'
         }
 
-        PendingReboot herstart
-        {
+        PendingReboot herstart {
             Name             = "Herstart"
             SkipCcmClientSDK = $true 
         }
 
-        DnsServerAddress setdns
-        {
+        DnsServerAddress setdns {
             Address        = $Node.IPDC01
             InterfaceAlias = 'Ethernet'
             AddressFamily  = 'IPv4'
         }
 
-        Computer JoinDomain
-        {
+        Computer JoinDomain {
             Name       = 'localhost'
             DomainName = $Node.DomainName
             Credential = $Credential
@@ -903,27 +847,23 @@ configuration HomelabConfig
 
     Node 'Syslog'
     {
-        cVMName vmname
-        {
+        cVMName vmname {
             Ensure    = 'Present'
             DSCModule = 'Bla'
         }
 
-        PendingReboot herstart
-        {
+        PendingReboot herstart {
             Name             = "Herstart"
             SkipCcmClientSDK = $true 
         }
 
-        DnsServerAddress setdns
-        {
+        DnsServerAddress setdns {
             Address        = $Node.IPDC01
             InterfaceAlias = 'Ethernet'
             AddressFamily  = 'IPv4'
         }
 
-        Computer JoinDomain
-        {
+        Computer JoinDomain {
             Name       = 'localhost'
             DomainName = $Node.DomainName
             Credential = $Credential
@@ -993,6 +933,42 @@ configuration HomelabConfig
             DependsOn = '[File]KiwiSetupfile'
         }
     }
+
+    Node 'Exchange'
+    {
+        cVMName vmname {
+            Ensure    = 'Present'
+            DSCModule = 'Bla'
+        }
+
+        PendingReboot herstart {
+            Name             = "Herstart"
+            SkipCcmClientSDK = $true 
+        }
+
+        DnsServerAddress setdns {
+            Address        = $Node.IPDC01
+            InterfaceAlias = 'Ethernet'
+            AddressFamily  = 'IPv4'
+        }
+
+        Computer JoinDomain {
+            Name       = 'localhost'
+            DomainName = $Node.DomainName
+            Credential = $Credential
+            DependsOn  = '[cVMName]vmname', '[DnsServerAddress]setdns'
+        }
+
+        File ExchangeBinaries {
+            Ensure          = 'Present'
+            Type            = 'Directory'
+            Recurse         = $true
+            SourcePath      = $Node.ExchangeSource
+            DestinationPath = 'C:\Binaries\E15CU6'
+            Credential      = $ShareCredentials
+            MatchSource     = $false
+        }
+    }
 }
 
 if ( (Test-Path -Path c:\Windows\Temp\credpwd.txt) -and (Test-Path -Path c:\Windows\Temp\credusr.txt) ) {
@@ -1001,7 +977,7 @@ if ( (Test-Path -Path c:\Windows\Temp\credpwd.txt) -and (Test-Path -Path c:\Wind
     $credential = New-Object System.Management.Automation.PsCredential($usr, $credpwd)
 }
 else {
-    $credential = Get-Credential -Message "Domain credentials"
+    $credential = Get-Credential -Message "Domain credentials" -UserName 'homelabdc22\administrator'
     $credential.UserName | Set-Content c:\Windows\Temp\credusr.txt -Force
     $credential.Password | ConvertFrom-SecureString | Set-Content c:\Windows\Temp\credpwd.txt -force
 }
