@@ -958,22 +958,48 @@ configuration HomelabConfig
             Credential = $Credential
             DependsOn  = '[cVMName]vmname', '[DnsServerAddress]setdns'
         }
-
-        File ExchangeBinaries {
+        
+        File vcredist_x64_2013 {
             Ensure          = 'Present'
-            Type            = 'Directory'
-            Recurse         = $true
-            SourcePath      = $Node.SourceExchange
-            DestinationPath = 'C:\Binaries\E2013CU23'
+            Type            = 'File'
+            SourcePath      = $ConfigurationData.SoftwareSource.VC2013x64
+            DestinationPath = 'c:\Windows\temp\SourceVCx642013.exe'
             Credential      = $ShareCredentials
             MatchSource     = $false
         }
+
+        Package SourceVCx642013 {
+            Ensure    = "Present"
+            Name      = "Microsoft Visual C++ 2013 Redistributable (x64) - 12.0.30501"
+            Path      = 'c:\Windows\temp\SourceVCx642013.exe'
+            ProductId = ''
+            Arguments = "/q"
+            LogPath   = "C:\windows\temp\SourceVCx642013.log"
+            DependsOn = '[File]vcredist_x64_2013'
+        }
+
+        Archive ExchangeBinaries {
+            Ensure      = 'Present'
+            Destination = 'C:\Binaries\E2013CU23'
+            Path        = $ConfigurationData.SoftwareSource.Exchange + "\Exchange2013-x64-cu23.exe"
+            Credential  = $ShareCredentials
+        }
+
+        <#File ExchangeBinaries {
+            Ensure          = 'Present'
+            Type            = 'Directory'
+            Recurse         = $true
+            SourcePath      = $ConfigurationData.SoftwareSource.Exchange #$Node.SourceExchange
+            DestinationPath = 'C:\Binaries\E2013CU23'
+            Credential      = $ShareCredentials
+            MatchSource     = $false
+        }#>
 
         xExchInstall InstallExchange {
             Path       = 'C:\Binaries\E2013U23\Setup.exe'
             Arguments  = '/mode:Install /role:ClientAccess,Mailbox /OrganizationName:Homelab /Iacceptexchangeserverlicenseterms'
             Credential = $Credential
-            DependsOn  = '[File]ExchangeBinaries'
+            DependsOn  = '[File]ExchangeBinaries', '[Package]SourceVCx642013'
         }
     }
 }

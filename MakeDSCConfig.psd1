@@ -1,5 +1,5 @@
 @{
-    AllNodes   = @(
+    AllNodes       = @(
         @{
             NodeName             = "*"
             CertificateFile      = "C:\Pullserver\DscPublicKey.cer"
@@ -90,14 +90,19 @@
 
     )
 
-    DomainData = @(
+    DomainData     = @(
         @{
             DomainName = "homelabdc22.local"
             DCIpNumber = "192.168.1.22"
         }
     )
+
+    SoftwareSource = @(
+        Exchange       = '\\hyperdrive\public\Exchange\2013cu23'
+        VC2013x64      = '\\hyperdrive\public\vcruntime\2013\vcredist_x64.exe'
+    )
     
-    DNSRecords = @(
+    DNSRecords     = @(
         @{
             Name     = 'ns30'
             IPNumber = '192.168.1.30'
