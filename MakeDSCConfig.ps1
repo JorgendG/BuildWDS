@@ -994,7 +994,7 @@ configuration HomelabConfig
 
         Package UcmaRuntimeSetup {
             Ensure    = "Present"
-            Name      = "Microsoft Visual C++ 2013 Redistributable (x64) - 12.0.30501"
+            Name      = "x"
             Path      = 'c:\Windows\temp\UcmaRuntimeSetup.exe'
             ProductId = ''
             Arguments = "/q"
