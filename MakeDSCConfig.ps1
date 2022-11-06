@@ -999,7 +999,7 @@ configuration HomelabConfig
             Path       = 'C:\Binaries\E2013U23\Setup.exe'
             Arguments  = '/mode:Install /role:ClientAccess,Mailbox /OrganizationName:Homelab /Iacceptexchangeserverlicenseterms'
             Credential = $Credential
-            DependsOn  = '[File]ExchangeBinaries', '[Package]SourceVCx642013'
+            DependsOn  = '[Archive]ExchangeBinaries', '[Package]SourceVCx642013'
         }
     }
 }
