@@ -10,7 +10,8 @@
             IPDC02               = "192.168.1.23"
             sourcesql            = '\\hyperdrive\public\sql\2017express'
 
-        },
+        }
+        ,
         @{
             NodeName                  = "subCA"
             PSDscAllowDomainUser      = $true
@@ -79,7 +80,8 @@
             SourceVCx862010      = '\\hyperdrive\public\syslog\vcredist_x86_2010.exe'
             SourceVCx862013      = '\\hyperdrive\public\syslog\vcredist_x86_2013.exe'
             SourceKiwi           = '\\hyperdrive\public\syslog\Kiwi_Syslog_Server_9.7.2.Eval.setup.exe'
-        },
+        }
+        ,
         @{
             NodeName             = "Exchange"
             PSDscAllowDomainUser = $true

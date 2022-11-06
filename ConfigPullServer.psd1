@@ -134,6 +134,9 @@
         },
         @{
             Name = 'ComputerManagementDsc'
+        },
+        @{
+            Name = 'xExchange'
         }
     )
 }
