@@ -85,7 +85,7 @@
         @{
             NodeName             = "Exchange"
             PSDscAllowDomainUser = $true
-            SourceExchange       = '\\hyperdrive\public\Exchange\2013u23'
+            SourceExchange       = '\\hyperdrive\public\Exchange\2013cu23'
         }
 
     )
