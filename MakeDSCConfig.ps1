@@ -963,7 +963,7 @@ configuration HomelabConfig
             Ensure          = 'Present'
             Type            = 'Directory'
             Recurse         = $true
-            SourcePath      = $Node.ExchangeSource
+            SourcePath      = $Node.SourceExchange
             DestinationPath = 'C:\Binaries\E2013CU23'
             Credential      = $ShareCredentials
             MatchSource     = $false
