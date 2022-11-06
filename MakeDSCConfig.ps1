@@ -958,6 +958,11 @@ configuration HomelabConfig
             Credential = $Credential
             DependsOn  = '[cVMName]vmname', '[DnsServerAddress]setdns'
         }
+
+        WindowsFeature InstallServer-Media-Foundation {
+            Name   = "Server-Media-Foundation"
+            Ensure = "Present"
+        }
         
         File vcredist_x64_2013 {
             Ensure          = 'Present'
@@ -975,7 +980,7 @@ configuration HomelabConfig
             ProductId = ''
             Arguments = "/q"
             LogPath   = "C:\windows\temp\SourceVCx642013.log"
-            DependsOn = '[File]vcredist_x64_2013'
+            DependsOn = '[File]vcredist_x64_2013', '[WindowsFeature]InstallServer-Media-Foundation'
         }
 
         File FileUcmaRuntimeSetup {
