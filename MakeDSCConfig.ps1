@@ -994,9 +994,9 @@ configuration HomelabConfig
 
         Package UcmaRuntimeSetup {
             Ensure    = "Present"
-            Name      = "x"
+            Name      = "Microsoft Unified Communications Managed API 4.0, Runtime"
             Path      = 'c:\Windows\temp\UcmaRuntimeSetup.exe'
-            ProductId = ''
+            ProductId = 'A41CBE7D-949C-41DD-9869-ABBD99D753DA'
             Arguments = "/q"
             LogPath   = "C:\windows\temp\SourceVCx642013.log"
             DependsOn = '[File]FileUcmaRuntimeSetup'
