@@ -97,11 +97,11 @@
         }
     )
 
-    SoftwareSource = @(
-        Exchange       = '\\hyperdrive\public\Exchange\2013cu23'
-        VC2013x64      = '\\hyperdrive\public\vcruntime\2013\vcredist_x64.exe'
-        UCMARuntime    = '\\hyperdrive\public\Exchange\UcmaRuntimeSetup.exe'
-    )
+    SoftwareSource = @{
+        Exchange    = '\\hyperdrive\public\Exchange\2013cu23'
+        VC2013x64   = '\\hyperdrive\public\vcruntime\2013\vcredist_x64.exe'
+        UCMARuntime = '\\hyperdrive\public\Exchange\UcmaRuntimeSetup.exe'
+    }
     
     DNSRecords     = @(
         @{
