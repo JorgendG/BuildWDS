@@ -100,6 +100,7 @@
     SoftwareSource = @(
         Exchange       = '\\hyperdrive\public\Exchange\2013cu23'
         VC2013x64      = '\\hyperdrive\public\vcruntime\2013\vcredist_x64.exe'
+        UCMARuntime    = '\\hyperdrive\public\Exchange\UcmaRuntimeSetup.exe'
     )
     
     DNSRecords     = @(
@@ -129,7 +130,7 @@
         },
         @{
             Name     = 'pfsense'
-            IPNumber = '192.168.1.7'
+            IPNumber = '192.168.1.8'
         },
         @{
             Name     = 'wordpress'

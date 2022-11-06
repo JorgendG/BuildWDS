@@ -978,6 +978,25 @@ configuration HomelabConfig
             DependsOn = '[File]vcredist_x64_2013'
         }
 
+        File FileUcmaRuntimeSetup {
+            Ensure          = 'Present'
+            Type            = 'File'
+            SourcePath      = $ConfigurationData.SoftwareSource.UCMARuntime
+            DestinationPath = 'c:\Windows\temp\UcmaRuntimeSetup.exe'
+            Credential      = $ShareCredentials
+            MatchSource     = $false
+        }
+
+        Package UcmaRuntimeSetup {
+            Ensure    = "Present"
+            Name      = "Microsoft Visual C++ 2013 Redistributable (x64) - 12.0.30501"
+            Path      = 'c:\Windows\temp\UcmaRuntimeSetup.exe'
+            ProductId = ''
+            Arguments = "/q"
+            LogPath   = "C:\windows\temp\SourceVCx642013.log"
+            DependsOn = '[File]FileUcmaRuntimeSetup'
+        }
+
         Archive ExchangeBinaries {
             Ensure      = 'Present'
             Destination = 'C:\Binaries\E2013CU23'
