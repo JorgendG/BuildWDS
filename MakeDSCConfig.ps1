@@ -1024,7 +1024,8 @@ configuration HomelabConfig
 
         xExchInstall InstallExchange {
             Path       = 'C:\Binaries\E2013U23\Setup.exe'
-            Arguments  = '/mode:Install /role:ClientAccess,Mailbox /OrganizationName:Homelab /Iacceptexchangeserverlicenseterms'
+            Arguments  = '/mode:Install /role:ClientAccess,Mailbox /OrganizationName:Homelab  /InstallWindowsComponents /Iacceptexchangeserverlicenseterms'
+
             Credential = $Credential
             DependsOn  = '[Script]ExtractExchange', '[Package]SourceVCx642013'
         }
