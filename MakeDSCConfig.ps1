@@ -1010,12 +1010,25 @@ configuration HomelabConfig
             Credential      = $ShareCredentials
         }
 
-        Archive ExchangeBinaries {
+        <#Archive ExchangeBinaries {
             Ensure      = 'Present'
             Destination = 'C:\Binaries\E2013CU23'
             Path        = 'C:\Binaries\Exchange2013-x64-cu23.exe'
             #Credential  = $ShareCredentials
             DependsOn   = '[File]ExchangeFile'
+        }#>
+
+        Script ExtractExchange {
+            SetScript  = {
+                Start-Process -FilePath 'C:\Binaries\Exchange2013-x64-cu23.exe' -ArgumentList '/x:C:\Binaries\E2013U23 /quiet' -Wait
+            }
+            GetScript  = {
+                @{ Result = (get-item 'C:\Binaries\E2013U23\setup.exe').length }
+            }
+            TestScript = {
+                Test-Path 'C:\Binaries\E2013U23\setup.exe'
+            }
+            DependsOn  = '[File]ExchangeFile'
         }
 
         <#File ExchangeBinaries {
@@ -1032,7 +1045,7 @@ configuration HomelabConfig
             Path       = 'C:\Binaries\E2013U23\Setup.exe'
             Arguments  = '/mode:Install /role:ClientAccess,Mailbox /OrganizationName:Homelab /Iacceptexchangeserverlicenseterms'
             Credential = $Credential
-            DependsOn  = '[Archive]ExchangeBinaries', '[Package]SourceVCx642013'
+            DependsOn  = '[Script]ExtractExchange', '[Package]SourceVCx642013'
         }
     }
 }
