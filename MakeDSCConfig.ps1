@@ -998,25 +998,16 @@ configuration HomelabConfig
             Path      = 'c:\Windows\temp\UcmaRuntimeSetup.exe'
             ProductId = 'A41CBE7D-949C-41DD-9869-ABBD99D753DA'
             Arguments = "/q"
-            #LogPath   = "C:\windows\temp\SourceVCx642013.log"
             DependsOn = '[File]FileUcmaRuntimeSetup'
         }
 
         File ExchangeFile {
             Ensure          = 'Present'
-            DestinationPath = = 'C:\Binaries\Exchange2013-x64-cu23.exe'
+            DestinationPath = 'C:\Binaries\Exchange2013-x64-cu23.exe'
             SourcePath      = $ConfigurationData.SoftwareSource.Exchange + "\Exchange2013-x64-cu23.exe"
             MatchSource     = $false
             Credential      = $ShareCredentials
         }
-
-        <#Archive ExchangeBinaries {
-            Ensure      = 'Present'
-            Destination = 'C:\Binaries\E2013CU23'
-            Path        = 'C:\Binaries\Exchange2013-x64-cu23.exe'
-            #Credential  = $ShareCredentials
-            DependsOn   = '[File]ExchangeFile'
-        }#>
 
         Script ExtractExchange {
             SetScript  = {
@@ -1030,16 +1021,6 @@ configuration HomelabConfig
             }
             DependsOn  = '[File]ExchangeFile'
         }
-
-        <#File ExchangeBinaries {
-            Ensure          = 'Present'
-            Type            = 'Directory'
-            Recurse         = $true
-            SourcePath      = $ConfigurationData.SoftwareSource.Exchange #$Node.SourceExchange
-            DestinationPath = 'C:\Binaries\E2013CU23'
-            Credential      = $ShareCredentials
-            MatchSource     = $false
-        }#>
 
         xExchInstall InstallExchange {
             Path       = 'C:\Binaries\E2013U23\Setup.exe'
