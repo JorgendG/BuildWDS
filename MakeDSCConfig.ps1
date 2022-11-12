@@ -16,7 +16,7 @@ configuration HomelabConfig
     Import-DscResource -ModuleName 'ComputerManagementDsc'
     Import-DscResource -ModuleName 'ActiveDirectoryDsc'
     Import-DscResource -ModuleName 'ActiveDirectoryCSDsc'
-    Import-DscResource -ModuleName 'cWDS'
+    Import-DscResource -ModuleName 'cWDS' 
     Import-DscResource -ModuleName 'NetworkingDsc'
     Import-DscResource -ModuleName 'XenDesktop7'
     Import-DscResource -ModuleName 'SqlServerDsc'

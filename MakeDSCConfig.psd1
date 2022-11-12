@@ -143,6 +143,10 @@
         @{
             Name     = 'mediawiki'
             IPNumber = '192.168.1.72'
+        },
+        @{
+            Name     = 'webmail'
+            IPNumber = '192.168.1.75'
         }
     )
 }
