@@ -21,8 +21,17 @@ While ($HttpListener.IsListening) {
 
         Write-Output "Files modified:"
         $whevent[0].head_commit.modified
+        if( 'MakeDSCConfig.ps1' -in $whevent[0].head_commit.modified )
+        {
+            Invoke-WebRequest -Uri https://github.com/JorgendG/BuildWDS/raw/master/MakeDSCConfig.ps1 -OutFile C:\Pullserver\MakeDSCConfig.ps1
+        }
+        if( 'MakeDSCConfig.psd1' -in $whevent[0].head_commit.modified )
+        {
+            Invoke-WebRequest -Uri https://github.com/JorgendG/BuildWDS/raw/master/MakeDSCConfig.psd1 -OutFile C:\Pullserver\MakeDSCConfig.psd1
+        }
         Write-Output "Files added:"
         $whevent[0].head_commit.added
+        
         #Write-Output $decodedpayload
     }
     $HttpResponse = $HttpContext.Response
