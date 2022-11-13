@@ -1,3 +1,4 @@
+Add-Type -AssemblyName System.Web
 
 $HttpListener = New-Object System.Net.HttpListener
 $HttpListener.Prefixes.Add("http://+:1234/")
