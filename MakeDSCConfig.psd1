@@ -1,5 +1,6 @@
 @{
-    # todo: domain data gebruiken ipv allnodes
+    # todo: 
+    #  * domain data gebruiken ipv allnodes
     AllNodes       = @(
         @{
             NodeName             = "*"
