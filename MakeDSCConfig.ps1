@@ -805,8 +805,6 @@ configuration HomelabConfig
 
             DependsOn                     = '[WaitForADDomain]WaitForestAvailability', "[WindowsFeature]ADDSInstall", "[File]ADFiles", "[IPAddress]ipDC23" , '[cVMName]vmname'
         }
-
-        
     }
     
     Node 'Docker'
