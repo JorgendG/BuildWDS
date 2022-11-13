@@ -1020,7 +1020,7 @@ configuration HomelabConfig
             DependsOn  = '[File]ExchangeFile'
         }
 
-        <#xExchInstall InstallExchange {
+        <# xExchInstall InstallExchange {
              Path       = 'C:\Binaries\E2013U23\Setup.exe'
             Arguments  = '/mode:Install /role:ClientAccess,Mailbox /OrganizationName:Homelab  /InstallWindowsComponents /Iacceptexchangeserverlicenseterms'
 
