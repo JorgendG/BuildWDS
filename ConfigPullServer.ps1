@@ -27,8 +27,7 @@ configuration PullServerSQL
     
     node localhost
     {
-        PendingReboot Reboot 
-        {
+        PendingReboot Reboot {
             Name             = "Reboot"
             SkipCcmClientSDK = $true 
         }
@@ -95,8 +94,7 @@ configuration PullServerSQL
             Recurse         = $true
         }
     
-        SqlSetup SqlExpress
-        {
+        SqlSetup SqlExpress {
             InstanceName        = 'SQLEXPRESS'
             Features            = 'SQLENGINE'
             SQLSysAdminAccounts = 'BUILTIN\Administrators', 'NT AUTHORITY\SYSTEM'
@@ -106,8 +104,7 @@ configuration PullServerSQL
             DependsOn           = '[WindowsFeature]NetFramework45', '[File]SQLServerFiles'
         }
 
-        xDscWebService PSDSCPullServer 
-        {
+        xDscWebService PSDSCPullServer {
             Ensure                       = 'Present'
             EndpointName                 = 'PSDSCPullServer'
             Port                         = 8080
@@ -125,8 +122,7 @@ configuration PullServerSQL
             DependsOn                    = '[File]PullServerFiles', '[WindowsFeature]dscservice', '[SqlSetup]SqlExpress'
         }
 
-        Firewall Pullserver
-        {
+        Firewall Pullserver {
             Name        = 'DSCPullServer_IIS_Port'
             DisplayName = 'DSCPullServer_IIS_Port'
             Ensure      = 'Present'
@@ -134,6 +130,19 @@ configuration PullServerSQL
             Profile     = ('Domain', 'Private', 'Public')
             Direction   = 'InBound'
             LocalPort   = ('8080')
+            Protocol    = 'TCP'
+            Description = 'DSC Pullserver'
+            DependsOn   = '[xDSCWebService]PSDSCPullServer'
+        }
+
+        Firewall GitHubWebHook {
+            Name        = 'GitHubWebHook'
+            DisplayName = 'GitHubWebHook'
+            Ensure      = 'Present'
+            Enabled     = 'True'
+            Profile     = ('Domain', 'Private', 'Public')
+            Direction   = 'InBound'
+            LocalPort   = ('1234')
             Protocol    = 'TCP'
             Description = 'DSC Pullserver'
             DependsOn   = '[xDSCWebService]PSDSCPullServer'
@@ -185,14 +194,12 @@ configuration PullServerSQL
             Force           = $true
         }
 
-        xMpPreference notscanWdsImages
-        {
+        xMpPreference notscanWdsImages {
             Name          = 'wdsimages'
             ExclusionPath = 'c:\wdsimages'
         }
 
-        cWDSInitialize InitWDS
-        {
+        cWDSInitialize InitWDS {
             Ensure     = 'Present'
             RootFolder = "c:\remoteinstall"
             DependsOn  = '[WindowsFeature]WDS'
@@ -208,8 +215,7 @@ configuration PullServerSQL
                 Credential      = $ShareCredentials
             }
 
-            cWDSInstallImage "WDSInstallImage-$($WimFile.Name)"
-            {
+            cWDSInstallImage "WDSInstallImage-$($WimFile.Name)" {
                 Ensure       = 'Present'
                 ImageName    = $WimFile.ImageName
                 GroupName    = $WimFile.GroupName
@@ -219,16 +225,14 @@ configuration PullServerSQL
             }
         }
       
-        cWDSServerAnswer answerAll
-        {
+        cWDSServerAnswer answerAll {
             Ensure    = 'Present'
             Answer    = 'all'
             DependsOn = '[cWDSInitialize]InitWDS'
         }
 
         Foreach ($DSCModule in $ConfigurationData.DSCModules) {
-            cDSCModule "DSCModule-$($DSCModule.Name)"
-            {
+            cDSCModule "DSCModule-$($DSCModule.Name)" {
                 Ensure    = 'Present'
                 DSCModule = $DSCModule.Name
                 DependsOn = '[xDscWebService]PSDSCPullServer'
@@ -236,10 +240,10 @@ configuration PullServerSQL
         }
 
         foreach ($RemoteFile in $ConfigurationData.RemoteFiles) {
-            xRemoteFile "xRemoteFile-$($RemoteFile.Name)"
-            {
+            xRemoteFile "xRemoteFile-$($RemoteFile.Name)" {
                 DestinationPath = $RemoteFile.DestinationPath
                 Uri             = $RemoteFile.Uri
+                MatchSource     = $false
                 DependsOn       = '[File]PullServerFiles'
             }
         }
@@ -250,31 +254,27 @@ configuration PullServerSQL
             IncludeAllSubFeature = $true
         }
 
-        NetIPInterface DisableDhcp
-        {
+        NetIPInterface DisableDhcp {
             InterfaceAlias = 'Ethernet 2'
             AddressFamily  = 'IPv4'
             Dhcp           = 'Disabled'
         }
 
-        IPAddress ip
-        {
-            IPAddress = "$($Node.IPAddress)"+"/24"
+        IPAddress ip {
+            IPAddress      = "$($Node.IPAddress)" + "/24"
             InterfaceAlias = 'Ethernet 2'
             AddressFamily  = 'IPv4'
             DependsOn      = '[NetIPInterface]DisableDhcp'
         }
         
-        DefaultGatewayAddress SetDefaultGateway
-        {
+        DefaultGatewayAddress SetDefaultGateway {
             Address        = '192.168.1.1'
             InterfaceAlias = 'Ethernet 2'
             AddressFamily  = 'IPv4'
             DependsOn      = '[NetIPInterface]DisableDhcp'
         }
 
-        DnsServerAddress setdnsfirst
-        {
+        DnsServerAddress setdnsfirst {
             Address        = '8.8.8.8'
             InterfaceAlias = 'Ethernet 2'
             AddressFamily  = 'IPv4'
@@ -290,16 +290,14 @@ configuration PullServerSQL
             Name   = 'RSAT-DNS-Server'
             Ensure = 'Present'
         }
-        DnsServerForwarder SetDNSForwarders
-        {
+        DnsServerForwarder SetDNSForwarders {
             IsSingleInstance = 'Yes'
             IPAddresses      = @('8.8.8.8')
             UseRootHint      = $false
             DependsOn        = '[WindowsFeature]DNS'
         }
 
-        DnsServerConditionalForwarder SetDNSCondForwarder
-        {
+        DnsServerConditionalForwarder SetDNSCondForwarder {
             Name          = 'homelabdc22.local'
             MasterServers = @('192.168.1.22', '192.168.1.23')
             Ensure        = 'Present'

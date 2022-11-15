@@ -1051,3 +1051,5 @@ foreach ($configMof in $Mofs) {
     Copy-Item $configMof.FullName $dest
     New-DSCChecksum $dest -Force
 }
+
+#seintje 1

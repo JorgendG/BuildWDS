@@ -2,6 +2,7 @@
     # todo: 
     #  * domain data gebruiken ipv allnodes
     #  * ca data apart
+    #  * ip gegevens centraal
     AllNodes       = @(
         @{
             NodeName             = "*"
