@@ -90,10 +90,15 @@
             Uri             = "https://github.com/JorgendG/BuildWDS/raw/master/MakeDSCConfig.psd1"
         },
         @{
+            Name            = 'NSSSM'
+            DestinationPath = "C:\Pullserver\nssm.exe"
+            Uri             = "https://github.com/JorgendG/BuildWDS/raw/master/NSSM.exe"
+        },
+        @{
             Name            = 'LCMScript'
             DestinationPath = "C:\inetpub\wwwroot\Bootstrap.txt"
             Uri             = "https://github.com/JorgendG/BuildWDS/raw/master/SetLCM.ps1"
-        }
+        },
         @{
             Name            = 'DSCPFX'
             DestinationPath = "C:\inetpub\wwwroot\DscPrivatePublicKey.pfx.txt"
