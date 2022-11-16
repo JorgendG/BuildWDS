@@ -1029,6 +1029,7 @@ configuration HomelabConfig
     }
 }
 
+# when manually run
 if ( (Test-Path -Path c:\Windows\Temp\credpwd.txt) -and (Test-Path -Path c:\Windows\Temp\credusr.txt) ) {
     $credpwd = Get-Content c:\Windows\Temp\credpwd.txt | ConvertTo-SecureString
     $usr = Get-Content c:\Windows\Temp\credusr.txt
