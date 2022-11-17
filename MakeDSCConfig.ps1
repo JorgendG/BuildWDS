@@ -1045,6 +1045,7 @@ $SharePwd = "P@ssword!" | ConvertTo-SecureString -AsPlainText -Force
 $ShareUserName = "hyperdrive\readonly"
 $ShareCredentials = New-Object System.Management.Automation.PSCredential -ArgumentList $ShareUserName, $SharePwd
 
+Start-Transcript C:\pullserver\HomelabConfig\transcript.txt -Append
 $mofs = HomelabConfig -credential $credential -ShareCredentials $ShareCredentials -ConfigurationData "$PSScriptRoot\MakeDSCConfig.psd1"
 
 foreach ($configMof in $Mofs) {
