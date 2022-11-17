@@ -10,6 +10,7 @@ Start-Service $serviceName
 Get-Service $serviceName
 #>
 
+
 Add-Type -AssemblyName System.Web
 
 $HttpListener = New-Object System.Net.HttpListener
@@ -62,5 +63,12 @@ While ($HttpListener.IsListening) {
         Invoke-WebRequest -Uri https://github.com/JorgendG/BuildWDS/raw/master/MakeDSCConfig.psd1 -OutFile C:\Pullserver\MakeDSCConfig.psd1
     }
     # trap makeconfig af
+    if ( (Test-Path C:\pullserver\HomelabConfig\credpwd.txt) -and (Test-Path C:\pullserver\HomelabConfig\credusr.txt) ) {
+        if ( $getMakeDSCConfigps1 -or $getMakeDSCConfigpsd1 ) {
+            Write-Output "Start MakeDSCConfig" + $((get-date).ToLocalTime()).ToString("yyyy-MM-dd HHmmss")
+            & C:\Pullserver\MakeDSCConfig.ps1
+            Write-Output "Einde MakeDSCConfig" + $((get-date).ToLocalTime()).ToString("yyyy-MM-dd HHmmss")
+        }
+    }
 }
 $HttpListener.Stop()
