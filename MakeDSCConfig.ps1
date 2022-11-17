@@ -1058,6 +1058,7 @@ Start-Transcript C:\pullserver\HomelabConfig\transcript.txt -Append
 $mofs = HomelabConfig -credential $credential -ShareCredentials $ShareCredentials -ConfigurationData "$PSScriptRoot\MakeDSCConfig.psd1"
 
 foreach ($configMof in $Mofs) {
+    Write-Output "Mof: $($configmof.name)"
     $dest = "C:\pullserver\Configuration\$($configmof.name)"
     Copy-Item $configMof.FullName $dest
     New-DSCChecksum $dest -Force
