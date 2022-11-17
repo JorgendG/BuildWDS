@@ -91,6 +91,12 @@
             PSDscAllowDomainUser = $true
             SourceExchange       = '\\hyperdrive\public\Exchange\2013cu23'
         }
+        ,
+        @{
+            NodeName             = "Testrol"
+            PSDscAllowDomainUser = $true
+            SourceExchange       = '\\hyperdrive\public\Exchange\2013cu23'
+        }
 
     )
 
