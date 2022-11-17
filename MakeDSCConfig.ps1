@@ -1027,6 +1027,15 @@ configuration HomelabConfig
             DependsOn  = '[Script]ExtractExchange', '[Package]SourceVCx642013'
         }#>
     }
+
+    Node 'TestRol'
+    {
+        cVMName vmname {
+            Ensure    = 'Present'
+            DSCModule = 'Bla'
+        }
+
+    }
 }
 
 # when manually run
