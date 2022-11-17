@@ -1030,22 +1030,22 @@ configuration HomelabConfig
 }
 
 # when manually run
-if ( (Test-Path -Path c:\Windows\Temp\credpwd.txt) -and (Test-Path -Path c:\Windows\Temp\credusr.txt) ) {
-    $credpwd = Get-Content c:\Windows\Temp\credpwd.txt | ConvertTo-SecureString
-    $usr = Get-Content c:\Windows\Temp\credusr.txt
+if ( (Test-Path -Path C:\pullserver\HomelabConfig\credpwd.txt) -and (Test-Path -Path C:\pullserver\HomelabConfig\credusr.txt) ) {
+    $credpwd = Get-Content C:\pullserver\HomelabConfig\credpwd.txt | ConvertTo-SecureString
+    $usr = Get-Content C:\pullserver\HomelabConfig\credusr.txt
     $credential = New-Object System.Management.Automation.PsCredential($usr, $credpwd)
 }
 else {
     $credential = Get-Credential -Message "Domain credentials" -UserName 'homelabdc22\administrator'
-    $credential.UserName | Set-Content c:\Windows\Temp\credusr.txt -Force
-    $credential.Password | ConvertFrom-SecureString | Set-Content c:\Windows\Temp\credpwd.txt -force
+    $credential.UserName | Set-Content C:\pullserver\HomelabConfig\credusr.txt -Force
+    $credential.Password | ConvertFrom-SecureString | Set-Content C:\pullserver\HomelabConfig\credpwd.txt -force
 }
 
 $SharePwd = "P@ssword!" | ConvertTo-SecureString -AsPlainText -Force
 $ShareUserName = "hyperdrive\readonly"
 $ShareCredentials = New-Object System.Management.Automation.PSCredential -ArgumentList $ShareUserName, $SharePwd
 
-$mofs = HomelabConfig -credential $credential -ShareCredentials $ShareCredentials -ConfigurationData .\MakeDSCConfig.psd1
+$mofs = HomelabConfig -credential $credential -ShareCredentials $ShareCredentials -ConfigurationData "$PSScriptRoot\MakeDSCConfig.psd1"
 
 foreach ($configMof in $Mofs) {
     $dest = "C:\pullserver\Configuration\$($configmof.name)"
