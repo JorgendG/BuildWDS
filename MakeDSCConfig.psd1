@@ -93,7 +93,7 @@
         }
         ,
         @{
-            NodeName             = "Testrol"
+            NodeName             = "TestRol"
             PSDscAllowDomainUser = $true
             # SourceExchange       = '\\hyperdrive\public\Exchange\2013cu23'
         }
