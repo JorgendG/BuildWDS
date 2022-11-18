@@ -1036,6 +1036,15 @@ configuration HomelabConfig
         }
 
     }
+
+    Node 'TestRol2'
+    {
+        cVMName vmname {
+            Ensure    = 'Present'
+            DSCModule = 'Bla'
+        }
+
+    }
 }
 
 # when manually run
