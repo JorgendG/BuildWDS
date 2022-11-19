@@ -1075,4 +1075,4 @@ foreach ($configMof in $Mofs) {
     New-DSCChecksum $dest -Force
 }
 
-#seintje 1 2 3 4 5
+#seintje 1 2 3 4 5 6
