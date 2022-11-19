@@ -13,6 +13,9 @@ Get-Service $serviceName
 
 Add-Type -AssemblyName System.Web
 
+$sourcerepo = 'https://github.com/JorgendG/BuildWDS/raw/master'
+$destFolder = 'C:\Pullserver'
+
 $HttpListener = New-Object System.Net.HttpListener
 $HttpListener.Prefixes.Add("http://+:1234/")
 
@@ -57,17 +60,17 @@ While ($HttpListener.IsListening) {
     Write-Output "" # Newline
     #$HttpListener.Stop()
     if ( $getMakeDSCConfigps1 ) {
-        Invoke-WebRequest -Uri https://github.com/JorgendG/BuildWDS/raw/master/MakeDSCConfig.ps1 -OutFile C:\Pullserver\MakeDSCConfig.ps1
+        Invoke-WebRequest -Uri "$sourcerepo/MakeDSCConfig.ps1" -OutFile "$destFolder\MakeDSCConfig.ps1"
     }
     if ( $getMakeDSCConfigpsd1 ) {
-        Invoke-WebRequest -Uri https://github.com/JorgendG/BuildWDS/raw/master/MakeDSCConfig.psd1 -OutFile C:\Pullserver\MakeDSCConfig.psd1
+        Invoke-WebRequest -Uri "$sourcerepo/MakeDSCConfig.psd1" -OutFile "$destFolder\MakeDSCConfig.psd1"
     }
     # trap makeconfig af
     if ( (Test-Path C:\pullserver\HomelabConfig\credpwd.txt) -and (Test-Path C:\pullserver\HomelabConfig\credusr.txt) ) {
         if ( $getMakeDSCConfigps1 -or $getMakeDSCConfigpsd1 ) {
-            Write-Output "Start MakeDSCConfig" + $((get-date).ToLocalTime()).ToString("yyyy-MM-dd HHmmss")
+            Write-Output "Start MakeDSCConfig" $((get-date).ToLocalTime()).ToString("yyyy-MM-dd HHmmss")
             & C:\Pullserver\MakeDSCConfig.ps1
-            Write-Output "Einde MakeDSCConfig" + $((get-date).ToLocalTime()).ToString("yyyy-MM-dd HHmmss")
+            Write-Output "Einde MakeDSCConfig" $((get-date).ToLocalTime()).ToString("yyyy-MM-dd HHmmss")
         }
     }
 }

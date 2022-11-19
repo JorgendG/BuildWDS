@@ -1055,7 +1055,7 @@ if ( (Test-Path -Path C:\pullserver\HomelabConfig\credpwd.txt) -and (Test-Path -
     $credential = New-Object System.Management.Automation.PsCredential($usr, $credpwd)
 }
 else {
-    Write-Output "Whoa, credentials zijn aanwezig"
+    Write-Output "Whoa, credentials zijn niet aanwezig"
     $credential = Get-Credential -Message "Domain credentials" -UserName 'homelabdc22\administrator'
     $credential.UserName | Set-Content C:\pullserver\HomelabConfig\credusr.txt -Force
     $credential.Password | ConvertFrom-SecureString | Set-Content C:\pullserver\HomelabConfig\credpwd.txt -force
