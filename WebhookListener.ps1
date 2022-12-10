@@ -31,12 +31,13 @@ if( $null -eq $ghwbservice )
 
 Add-Type -AssemblyName System.Web
 
+$portNumber = 1234
 $sourcerepo = 'https://github.com/JorgendG/BuildWDS/raw/master'
 $destFolder = 'C:\Pullserver'
 $updateaction = 'C:\Pullserver\MakeDSCConfig.ps1'
 
 $HttpListener = New-Object System.Net.HttpListener
-$HttpListener.Prefixes.Add("http://+:1234/")
+$HttpListener.Prefixes.Add('http://+:' + $portNumber + '/')
 
 $HttpListener.Start()
 While ($HttpListener.IsListening) {
