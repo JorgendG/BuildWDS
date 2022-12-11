@@ -275,7 +275,7 @@ configuration PullServerSQL
         }
 
         DnsServerAddress setdnsfirst {
-            Address        = '8.8.8.8'
+            Address        = '127.0.0.1'
             InterfaceAlias = 'Ethernet 2'
             AddressFamily  = 'IPv4'
             DependsOn      = '[IPAddress]ip'
