@@ -1,4 +1,4 @@
-$class = cimclass MSFT_TaskEventTrigger root/Microsoft/Windows/TaskScheduler
+$class = Get-CimClass MSFT_TaskEventTrigger root/Microsoft/Windows/TaskScheduler
 $trigger = $class | New-CimInstance -ClientOnly
 
 $trigger.Enabled = $true
@@ -10,8 +10,8 @@ Path="Microsoft-Windows-Hyper-V-VMMS-Admin">`
 and EventID=18304]]</Select></Query></QueryList>'
 
 $ActionParameters = @{
- Execute  = 'C:\Windows\system32\WindowsPowerShell\v1.0\powershell.exe'
- Argument = '-NoProfile -File C:\scripts\setstaticmac.ps1'
+    Execute  = 'C:\Windows\system32\WindowsPowerShell\v1.0\powershell.exe'
+    Argument = '-NoProfile -File C:\scripts\setstaticmac.ps1'
 }
 
 $Action = New-ScheduledTaskAction @ActionParameters

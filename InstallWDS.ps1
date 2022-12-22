@@ -196,12 +196,13 @@ $xmlunattend = [xml]'<unattend xmlns="urn:schemas-microsoft-com:unattend">
                 </component>
             </settings>
         </unattend>'
-$winpe = $xmlunattend.unattend.settings | Where-Object{ $_.pass -eq 'windowsPE' }
-$winpe.component.Where( {$_.name -eq 'Microsoft-Windows-International-Core-WinPE'} )
-$winpe.component.Where( {$_.name -eq 'Microsoft-Windows-Setup'} ).WindowsDeploymentServices.Login.Credentials.Username = 'readonly'
-$winpe.component.Where( {$_.name -eq 'Microsoft-Windows-Setup'} ).WindowsDeploymentServices.Login.Credentials.Password = 'P@ssword!'
-$winpe.component.Where( {$_.name -eq 'Microsoft-Windows-Setup'} ).WindowsDeploymentServices.Login.Credentials.Domain = 'wds01'
+$winpe = $xmlunattend.unattend.settings | Where-Object { $_.pass -eq 'windowsPE' }
+$winpe.component.Where( { $_.name -eq 'Microsoft-Windows-International-Core-WinPE' } )
+$winpe.component.Where( { $_.name -eq 'Microsoft-Windows-Setup' } ).WindowsDeploymentServices.Login.Credentials.Username = 'readonly'
+$winpe.component.Where( { $_.name -eq 'Microsoft-Windows-Setup' } ).WindowsDeploymentServices.Login.Credentials.Password = 'P@ssword!'
+$winpe.component.Where( { $_.name -eq 'Microsoft-Windows-Setup' } ).WindowsDeploymentServices.Login.Credentials.Domain = 'wds01'
 
+# [System.Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes(('{0}AdministratorPassword' -f 'P@ssword!')))
 $xmlunattend.Save( "c:\windows\temp\unattend.xml" )
 
 Invoke-WebRequest -Uri https://github.com/JorgendG/BuildWDS/raw/master/InstallDSCModules.ps1 -OutFile C:\Windows\Temp\InstallDSCModules.ps1
@@ -221,8 +222,7 @@ Import-PfxCertificate -FilePath C:\Windows\Temp\DscPrivatePublicKey.pfx -Passwor
 # Create a scheduled task which runs after a reboot. After this reboot, the local environment is ready for install-module
 $taskName = "InstallDSCModules"
 $task = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
-if ($null -ne $task)
-{
+if ($null -ne $task) {
     Unregister-ScheduledTask -TaskName $taskName -Confirm:$false 
 }
 
