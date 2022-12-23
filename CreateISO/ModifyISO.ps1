@@ -1,59 +1,129 @@
-$VerbosePreference="Continue"
-function InstallOSCDIMG
- {
+$VerbosePreference = "Continue"
+function InstallOSCDIMG {
+    <#
+        .SYNOPSIS
+        Install Oscdimg.
+
+        .DESCRIPTION
+        Download and install Oscdimg.
+        Oscdimg can be used to create an ISO file
+
+        .INPUTS
+        None.
+
+        .OUTPUTS
+        None.
+
+    #>
     Write-Verbose "Downloading oscdimg"
-    Invoke-WebRequest -Uri 'https://download.microsoft.com/download/1/f/d/1fd2291e-c0e9-4ae0-beae-fbbe0fe41a5a/adk/Installers/1ac6852d8cf69114a2f7c4872d489325.cab' -OutFile 'C:\Windows\Temp\1ac6852d8cf69114a2f7c4872d489325.cab'
-    Invoke-WebRequest -Uri 'https://download.microsoft.com/download/1/f/d/1fd2291e-c0e9-4ae0-beae-fbbe0fe41a5a/adk/Installers/Oscdimg (DesktopEditions)-x86_en-us.msi' -OutFile 'C:\Windows\Temp\Oscdimg (DesktopEditions)-x86_en-us.msi'
-    Invoke-WebRequest -Uri 'https://download.microsoft.com/download/1/f/d/1fd2291e-c0e9-4ae0-beae-fbbe0fe41a5a/adk/Installers/52be7e8e9164388a9e6c24d01f6f1625.cab' -OutFile 'C:\Windows\Temp\52be7e8e9164388a9e6c24d01f6f1625.cab'
-    Invoke-WebRequest -Uri 'https://download.microsoft.com/download/1/f/d/1fd2291e-c0e9-4ae0-beae-fbbe0fe41a5a/adk/Installers/9d2b092478d6cca70d5ac957368c00ba.cab' -OutFile 'C:\Windows\Temp\9d2b092478d6cca70d5ac957368c00ba.cab'
-    Invoke-WebRequest -Uri 'https://download.microsoft.com/download/1/f/d/1fd2291e-c0e9-4ae0-beae-fbbe0fe41a5a/adk/Installers/5d984200acbde182fd99cbfbe9bad133.cab' -OutFile 'C:\Windows\Temp\5d984200acbde182fd99cbfbe9bad133.cab'
-    Invoke-WebRequest -Uri 'https://download.microsoft.com/download/1/f/d/1fd2291e-c0e9-4ae0-beae-fbbe0fe41a5a/adk/Installers/bbf55224a0290f00676ddc410f004498.cab' -OutFile 'C:\Windows\Temp\bbf55224a0290f00676ddc410f004498.cab'
+    $adkinstallerroot = 'https://download.microsoft.com/download/1/f/d/1fd2291e-c0e9-4ae0-beae-fbbe0fe41a5a/adk/Installers/'
+    $oscdfiles = '1ac6852d8cf69114a2f7c4872d489325.cab', 'Oscdimg (DesktopEditions)-x86_en-us.msi', '52be7e8e9164388a9e6c24d01f6f1625.cab',
+    '9d2b092478d6cca70d5ac957368c00ba.cab', '5d984200acbde182fd99cbfbe9bad133.cab', 'bbf55224a0290f00676ddc410f004498.cab'
+
+    foreach ( $oscdfile in $oscdfiles ) {
+        Invoke-WebRequest -Uri "$adkinstallerroot$oscdfile" -OutFile "C:\Windows\Temp\$oscdfile"
+    }
 
     $MSIArguments = @(
-            "/i"
+        "/i"
             ('"{0}"' -f 'C:\Windows\Temp\Oscdimg (DesktopEditions)-x86_en-us.msi')
-            "/qn"
-            "/norestart"
-        )
+        "/qn"
+        "/norestart"
+    )
+
     Write-Verbose "Installing oscdimg"
-    Start-Process "msiexec.exe" -ArgumentList $MSIArguments -Wait -NoNewWindow
- }
+    try {
+        Start-Process "msiexec.exe" -ArgumentList $MSIArguments -Wait -NoNewWindow
+        Write-Verbose "Installed oscdimg"
+    }
+    catch {
+        Write-Warning $Error[0]
+    }
+}
 
- function CheckOSCDIMG
- {
-     $softwarekey = 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows Kits\Installed Roots'
+function PathOSCDIMG {
+    $softwarekey = 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows Kits\Installed Roots'
 
-     Get-ItemProperty -Path $softwarekey -Name '{B2CC0FA4-2C40-81F5-C0CD-3A3FAB81FE7E}' -ErrorAction SilentlyContinue
-     
- }
-
- function PathOSCDIMG
- {
-     $softwarekey = 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows Kits\Installed Roots'
-
-     Get-ItemProperty -Path $softwarekey -Name 'KitsRoot10' -ErrorAction SilentlyContinue
-     
- }
+    Get-ItemProperty -Path $softwarekey -Name 'KitsRoot10' -ErrorAction SilentlyContinue
+}
 
 function CopyISO {
     param (
-        $isofile,
-        $mountfolder
+        [Parameter(Mandatory = $true)]
+        $IsoFile,
+        [Parameter(Mandatory = $true)]
+        $MountFolder
     )
-    $iso = Mount-DiskImage $isofile
-    $isodrive = $iso | Get-Volume
-    New-Item $mountfolder -ItemType Directory
+    <#
+        .SYNOPSIS
+        Copy contents of a ISO file.
 
-    Copy-Item $($isodrive.DriveLetter+":\*") -Destination $mountfolder -Recurse
+        .DESCRIPTION
+        Mount and extract files from a ISO file.
 
-    $iso | Dismount-DiskImage
-    
+        .PARAMETER IsoFile
+        Specifies the ISO file name.
+
+        .PARAMETER MountFolder
+        Specifies where the ISO is copied to.
+
+        .INPUTS
+        None.
+
+        .OUTPUTS
+        None.
+
+        .EXAMPLE
+        PS> CopyISO -IsoFile D:\ISO\20348.169.210806-2348.fe_release_svc_refresh_SERVER_EVAL_x64FRE_en-us.iso MountFolder D:\Mount
+
+    #>
+
+    try {
+        $iso = Mount-DiskImage $isofile -ErrorAction Stop
+        $isodrive = $iso | Get-Volume
+        New-Item $mountfolder -ItemType Directory -ErrorAction Stop
+
+        Copy-Item $($isodrive.DriveLetter + ":\*") -Destination $mountfolder -Recurse
+    }
+    catch {
+        Write-Warning $Error[0]
+    }
+    finally {
+        if ( $iso ) { $iso | Dismount-DiskImage }
+    }
 }
 
 function MakeAutounattend {
     param (
-        $filename
+        [Parameter(Mandatory = $true)]
+        $FileName,
+        [Parameter(Mandatory = $true)]
+        [PSCredential] $adminPassword
     )
+    <#
+        .SYNOPSIS
+        Create an autounattend.xml file.
+
+        .DESCRIPTION
+        Create an autounattend.xml file for an unattended Windows installation.
+
+        .PARAMETER FileName
+        Specifies the autounattend.xml file name.
+
+        .PARAMETER adminPassword
+        Specifies password for the built-in administrator account.
+
+        .INPUTS
+        None.
+
+        .OUTPUTS
+        None.
+
+        .EXAMPLE
+        PS> MakeAutounattend FileName D:\Mount\autounattend.xml (Get-Credential)
+
+    #>
+
     $unattendxml = [xml]'<?xml version="1.0" encoding="utf-8"?>
     <unattend xmlns="urn:schemas-microsoft-com:unattend">
         <settings pass="windowsPE">
@@ -202,7 +272,7 @@ function MakeAutounattend {
                 </OOBE>
                 <UserAccounts>
                     <AdministratorPassword>
-                        <Value>MQAyAHcAcQAhAEAAVwBRAEEAZABtAGkAbgBpAHMAdAByAGEAdABvAHIAUABhAHMAcwB3AG8AcgBkAA==</Value>
+                        <Value>EncryptedPassword</Value>
                         <PlainText>false</PlainText>
                     </AdministratorPassword>
                 </UserAccounts>
@@ -211,6 +281,10 @@ function MakeAutounattend {
         <cpi:offlineImage cpi:source="wim:c:/users/administrator.homelabdsc/desktop/install.wim#Windows Server 2019 SERVERSTANDARD" xmlns:cpi="urn:schemas-microsoft-com:cpi" />
     </unattend>
     '
+
+    $encrpwd = [System.Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes(('{0}AdministratorPassword' -f ($adminPassword.GetNetworkCredential().password) )))
+    $passoobeSystem = $unattendxml.unattend.settings | Where-Object { $_.pass -eq 'oobeSystem' }
+    $passoobeSystem.component.UserAccounts.AdministratorPassword.Value = $encrpwd
     $unattendxml.Save( $filename )
 }
 
@@ -221,28 +295,36 @@ function MakeISO {
     )
 
     $OscdimgArguments = @(
-            "-m"
-            "-o"
-            "-u2"
-            "-udfver102"
-            "-bootdata:2#p0,e,b$($mountfolder)\boot\etfsboot.com#pEF,e,b$($mountfolder)\efi\microsoft\boot\efisys.bin"
-            "$mountfolder"
-            "$newiso"
-        )
+        "-m"
+        "-o"
+        "-u2"
+        "-udfver102"
+        "-bootdata:2#p0,e,b$($mountfolder)\boot\etfsboot.com#pEF,e,b$($mountfolder)\efi\microsoft\boot\efisys.bin"
+        "$mountfolder"
+        "$newiso"
+    )
     Write-Verbose "Writing $mountfolder as $newiso"
-    $Oscdimgexe = "$((PathOSCDIMG).KitsRoot10)"+"Assessment and Deployment Kit\Deployment Tools\amd64\Oscdimg\Oscdimg.exe"
+    $Oscdimgexe = "$((PathOSCDIMG).KitsRoot10)" + "Assessment and Deployment Kit\Deployment Tools\amd64\Oscdimg\Oscdimg.exe"
     Start-Process "$oscdimgexe" -ArgumentList $OscdimgArguments -Wait -NoNewWindow
 }
 
-if( $null -eq (CheckOSCDIMG) )
-{
+<# ===============================================================
+ Start main scriot
+
+#>
+$isofile = "C:\tst\20348.169.210806-2348.fe_release_svc_refresh_SERVER_EVAL_x64FRE_en-us.iso"
+$mountfolder = "c:\Mount" 
+
+if ( $null -eq (PathOSCDIMG) ) {
     InstallOSCDIMG
 }
 
-$isofile = "C:\Users\jwdeg\Downloads\20348.169.210806-2348.fe_release_svc_refresh_SERVER_EVAL_x64FRE_en-us.iso"
-CopyISO $isofile d:\mount
-MakeAutounattend d:\mount\autounattend.xml
 
-MakeISO D:\mount C:\temp\wds2022.iso
+CopyISO $isofile $mountfolder
+
+$credential = Get-Credential -Message "Administrator credentials" -UserName 'wds01\administrator'
+MakeAutounattend "$mountfolder\autounattend.xml" $credential
+
+MakeISO $mountfolder C:\tst\wds2022.iso
 
 
