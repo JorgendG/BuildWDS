@@ -1,6 +1,6 @@
-# iso gemaakt met een autounattend.xml
-# oscdimg.exe -m -o -u2 -udfver102 -bootdata:2#p0,e,bc:\temp\iso\boot\etfsboot.com#pEF,e,bc:\temp\iso\efi\microsoft\boot\efisys.bin c:\temp\iso c:\temp\wds01.iso
 start-transcript -path c:\windows\temp\installwds.txt
+
+$githubrepo = "https://github.com/JorgendG/BuildWDS/raw/reorganize"
 
 #[Net.ServicePointManager]::SecurityProtocol='tls12,tls11,tls'
 #Install-Module CertificateDsc -Force
@@ -179,7 +179,7 @@ $xmlunattend = [xml]'<unattend xmlns="urn:schemas-microsoft-com:unattend">
                 <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                     <UserAccounts>
                         <AdministratorPassword>
-                            <Value>MQAyAHcAcQAhAEAAVwBRAEEAZABtAGkAbgBpAHMAdAByAGEAdABvAHIAUABhAHMAcwB3AG8AcgBkAA==</Value>
+                            <Value/>
                             <PlainText>false</PlainText>
                         </AdministratorPassword>
                     </UserAccounts>
@@ -205,15 +205,12 @@ $winpe.component.Where( { $_.name -eq 'Microsoft-Windows-Setup' } ).WindowsDeplo
 # [System.Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes(('{0}AdministratorPassword' -f 'P@ssword!')))
 $xmlunattend.Save( "c:\windows\temp\unattend.xml" )
 
-Invoke-WebRequest -Uri https://github.com/JorgendG/BuildWDS/raw/master/InstallDSCModules.ps1 -OutFile C:\Windows\Temp\InstallDSCModules.ps1
-Invoke-WebRequest -Uri https://github.com/JorgendG/BuildWDS/raw/master/ConfigPullServer.psd1 -OutFile C:\Windows\Temp\ConfigPullServer.psd1
-Invoke-WebRequest -Uri https://github.com/JorgendG/BuildWDS/raw/master/ConfigPullServer.ps1 -OutFile C:\Windows\Temp\ConfigPullServer.ps1
-Invoke-WebRequest -Uri https://github.com/JorgendG/BuildWDS/raw/master/DscPrivatePublicKey.pfx -OutFile C:\Windows\Temp\DscPrivatePublicKey.pfx
-Invoke-WebRequest -Uri https://github.com/JorgendG/BuildWDS/raw/master/DscPublicKey.cer -OutFile C:\Windows\Temp\DscPublicKey.cer
+Invoke-WebRequest -Uri "$githubrepo/WDSServer/InstallDSCModules.ps1" -OutFile C:\Windows\Temp\InstallDSCModules.ps1
+Invoke-WebRequest -Uri "$githubrepo/DscPrivatePublicKey.pfx" -OutFile C:\Windows\Temp\DscPrivatePublicKey.pfx
+Invoke-WebRequest -Uri "$githubrepo/DscPublicKey.cer" -OutFile C:\Windows\Temp\DscPublicKey.cer
 
-New-Item -Path 'C:\Program Files\WindowsPowerShell\Modules\cWDS' -ItemType Directory
-Invoke-WebRequest -Uri https://github.com/JorgendG/cWDS/raw/master/cWDS.psd1 -OutFile 'C:\Program Files\WindowsPowerShell\Modules\cWDS\cWDS.psd1'
-Invoke-WebRequest -Uri https://github.com/JorgendG/cWDS/raw/master/cWDS.psm1 -OutFile 'C:\Program Files\WindowsPowerShell\Modules\cWDS\cWDS.psm1'
+Invoke-WebRequest -Uri "$githubrepo/ConfigPullServer.psd1" -OutFile C:\Windows\Temp\ConfigPullServer.psd1
+Invoke-WebRequest -Uri "$githubrepo/ConfigPullServer.ps1" -OutFile C:\Windows\Temp\ConfigPullServer.ps1
 
 $mypwd = ConvertTo-SecureString -String "1234" -Force -AsPlainText
 Import-PfxCertificate -FilePath C:\Windows\Temp\DscPrivatePublicKey.pfx -Password $mypwd -CertStoreLocation Cert:\LocalMachine\My
