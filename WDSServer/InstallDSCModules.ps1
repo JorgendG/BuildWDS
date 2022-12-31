@@ -133,7 +133,7 @@ function New-UnattendXML {
                 <component name="Microsoft-Windows-PnpSysprep" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                     <PersistAllDeviceInstalls>true</PersistAllDeviceInstalls>
                 </component>
-                <component name="Microsoft-Windows-IE-InternetExplorer" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="[url="http://schemas.microsoft.com/WMIConfig/2002/State"]http://schemas.microsoft.com/WMIConfig/2002/State[/url]" xmlns:xsi="[url="http://www.w3.org/2001/XMLSchema-instance"]http://www.w3.org/2001/XMLSchema-instance[/url]">
+                <component name="Microsoft-Windows-IE-InternetExplorer" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	                <DisableFirstRunWizard>true</DisableFirstRunWizard>
                 </component>
             </settings>
