@@ -242,7 +242,7 @@ New-LocalUser -Name readonly -Password $mypwd -AccountNeverExpires:$true
 
 $credential = New-Object `
     -TypeName System.Management.Automation.PSCredential `
-    -ArgumentList "wds01\administrator", $mypwd
+    -ArgumentList "wds01\readonly", $mypwd
 
 New-UnattendXML -FileName c:\windows\temp\unattend.xml -WDSCredential $credential
 
