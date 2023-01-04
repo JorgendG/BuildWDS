@@ -352,11 +352,16 @@ $SharePwd = "P@ssword!" | ConvertTo-SecureString -AsPlainText -Force
 $ShareUserName = "hyperdrive\readonly"
 $ShareCredentials = New-Object System.Management.Automation.PSCredential -ArgumentList $ShareUserName, $SharePwd
 
+$WDSPwd = "P@ssword!" | ConvertTo-SecureString -AsPlainText -Force
+$WDSUserName = "wds01\readonly"
+$WDSCredentials = New-Object System.Management.Automation.PSCredential -ArgumentList $WDSUserName, $WDSPwd
+
+
 # Apply the LCM Config
 Set-DscLocalConfigurationManager `
     -Path .\ConfigureLCM\ `
     -ComputerName Localhost `
     -Verbose
 
-PullServerSQL -ShareCredentials $ShareCredentials -ConfigurationData "$scriptpath\ConfigPullServer.psd1"
+PullServerSQL -ShareCredentials $ShareCredentials -WDSCredential $WDSCredentials -ConfigurationData "$scriptpath\ConfigPullServer.psd1"
 Start-DscConfiguration -Path .\PullServerSQL -Verbose -wait -Force
