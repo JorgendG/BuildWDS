@@ -13,7 +13,11 @@ configuration PullServerSQL
     param(
         [Parameter(Mandatory = $false)]
         [ValidateNotNullorEmpty()]
-        [PsCredential] $ShareCredentials
+        [PsCredential] $ShareCredentials,
+
+        [Parameter(Mandatory = $false)]
+        [ValidateNotNullorEmpty()]
+        [PsCredential] $WDSCredentials
     )
 
     Import-DscResource -ModuleName PSDesiredStateConfiguration
@@ -31,6 +35,15 @@ configuration PullServerSQL
             Name             = "Reboot"
             SkipCcmClientSDK = $true 
         }
+
+        User readonly {
+            Ensure               = 'Present'
+            UserName             = 'readonly'
+            PasswordNeverExpires = $true
+            Password             = $WDSCredentials
+        }
+
+        
 
         File managementagentx64 {
             Ensure          = 'Present'
@@ -205,6 +218,13 @@ configuration PullServerSQL
             DependsOn  = '[WindowsFeature]WDS'
         }
 
+        cUnattendXML unattendxml {
+            Ensure        = 'Present'
+            Filename      = 'c:\pullserver\unattend.xml'
+            WDSCredential = $WDSCredentials
+            DependsOn     = '[User]readonly'
+        }
+
         Foreach ($WimFile in $ConfigurationData.WimFiles) {
             File "FileCopy-$($WimFile.Name)" {
                 Ensure          = 'Present'
@@ -216,12 +236,13 @@ configuration PullServerSQL
             }
 
             cWDSInstallImage "WDSInstallImage-$($WimFile.Name)" {
-                Ensure       = 'Present'
-                ImageName    = $WimFile.ImageName
-                GroupName    = $WimFile.GroupName
-                Path         = $WimFile.DestinationPath
-                Unattendfile = $WimFile.Unattendfile
-                DependsOn    = '[cWDSInitialize]InitWDS', "[File]FileCopy-$($WimFile.Name)" 
+                Ensure          = 'Present'
+                ImageName       = $WimFile.ImageName
+                GroupName       = $WimFile.GroupName
+                Path            = $WimFile.DestinationPath
+                Unattendfile    = $WimFile.Unattendfile
+                SrcUnattendfile = 'c:\pullserver\unattend.xml'
+                DependsOn       = '[cWDSInitialize]InitWDS', "[File]FileCopy-$($WimFile.Name)", '[cUnattendXML]unattendxml'
             }
         }
       
@@ -230,6 +251,8 @@ configuration PullServerSQL
             Answer    = 'all'
             DependsOn = '[cWDSInitialize]InitWDS'
         }
+
+        
 
         Foreach ($DSCModule in $ConfigurationData.DSCModules) {
             cDSCModule "DSCModule-$($DSCModule.Name)" {

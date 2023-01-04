@@ -236,6 +236,7 @@ New-Item -Path 'C:\Program Files\WindowsPowerShell\Modules\cWDS' -ItemType Direc
 Invoke-WebRequest -Uri https://github.com/JorgendG/cWDS/raw/master/cWDS.psd1 -OutFile 'C:\Program Files\WindowsPowerShell\Modules\cWDS\cWDS.psd1'
 Invoke-WebRequest -Uri https://github.com/JorgendG/cWDS/raw/master/cWDS.psm1 -OutFile 'C:\Program Files\WindowsPowerShell\Modules\cWDS\cWDS.psm1'
 
+<#
 # Create local user used for unattended installs
 $mypwd = ConvertTo-SecureString -String "P@ssword!" -Force -AsPlainText
 New-LocalUser -Name readonly -Password $mypwd -AccountNeverExpires:$true
@@ -245,7 +246,7 @@ $credential = New-Object `
     -ArgumentList "wds01\readonly", $mypwd
 
 New-UnattendXML -FileName c:\windows\temp\unattend.xml -WDSCredential $credential
-
+#>
 
 $githubrepo = "https://github.com/JorgendG/BuildWDS/raw/reorganize"
 Invoke-WebRequest -Uri "$githubrepo/DscPrivatePublicKey.pfx" -OutFile C:\Windows\Temp\DscPrivatePublicKey.pfx
