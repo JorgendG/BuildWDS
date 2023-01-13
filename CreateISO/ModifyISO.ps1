@@ -346,8 +346,7 @@ function MakeISO {
 #   Start main script
 # ===============================================================
 $isofile = "C:\tst\20348.169.210806-2348.fe_release_svc_refresh_SERVER_EVAL_x64FRE_en-us.iso"
-#$ScriptUri = "https://github.com/JorgendG/BuildWDS/raw/master/InstallWDS.ps1"
-$ScriptUri = "https://github.com/JorgendG/BuildWDS/raw/reorganize/InstallWDS.ps1"
+$ScriptUri = "https://github.com/JorgendG/BuildWDS/raw/reorganize/FirstRun.ps1"
 $mountfolder = "c:\Mount" 
 
 if ( $null -eq (PathOSCDIMG) ) {
