@@ -1,4 +1,4 @@
-$githubrepo = 'https://raw.githubusercontent.com/JorgendG/BuildWDS/reorganize'
+$githubrepo = 'https://raw.githubusercontent.com/JorgendG/BuildWDS/master'
 
 Invoke-WebRequest -Uri "$githubrepo/WDSServer/InstallDSCModules.ps1" -OutFile C:\Windows\Temp\InstallDSCModules.ps1
 
