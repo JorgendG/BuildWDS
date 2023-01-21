@@ -30,12 +30,6 @@ configuration HomelabConfig
             DSCModule = 'Bla1'
         }
 
-        DnsServerAddress setdns {
-            Address        = $Node.IPDC01
-            InterfaceAlias = 'Ethernet'
-            AddressFamily  = 'IPv4'
-        }
-
         PendingReboot herstart {
             Name             = "Herstart"
             SkipCcmClientSDK = $true 
@@ -45,7 +39,7 @@ configuration HomelabConfig
             Name       = 'localhost'
             DomainName = $Node.DomainName
             Credential = $Credential # Credential to join to domain
-            DependsOn  = '[cVMName]vmname', '[DnsServerAddress]setdns'
+            DependsOn  = '[cVMName]vmname'
         }
 
         File CAPolicy {
@@ -235,12 +229,6 @@ configuration HomelabConfig
             DSCModule = 'Bla'
         }
 
-        DnsServerAddress setdns {
-            Address        = $Node.IPDC01
-            InterfaceAlias = 'Ethernet'
-            AddressFamily  = 'IPv4'
-        }
-
         PendingReboot herstart {
             Name             = "Herstart"
             SkipCcmClientSDK = $true 
@@ -399,17 +387,11 @@ configuration HomelabConfig
             SkipCcmClientSDK = $true 
         }
 
-        DnsServerAddress setdns {
-            Address        = $Node.IPDC01
-            InterfaceAlias = 'Ethernet'
-            AddressFamily  = 'IPv4'
-        }
-
         Computer JoinDomain {
             Name       = 'localhost'
             DomainName = $Node.DomainName
             Credential = $Credential # Credential to join to domain
-            DependsOn  = '[cVMName]vmname', '[DnsServerAddress]setdns'
+            DependsOn  = '[cVMName]vmname'
         }
     }
 
@@ -425,17 +407,11 @@ configuration HomelabConfig
             SkipCcmClientSDK = $true 
         }
 
-        DnsServerAddress setdns {
-            Address        = $Node.IPDC01
-            InterfaceAlias = 'Ethernet'
-            AddressFamily  = 'IPv4'
-        }
-
         Computer JoinDomain {
             Name       = 'localhost'
             DomainName = $Node.DomainName
             Credential = $Credential # Credential to join to domain
-            DependsOn  = '[cVMName]vmname', '[DnsServerAddress]setdns'
+            DependsOn  = '[cVMName]vmname'
         }
 
         WindowsFeature 'NetFramework45' {
@@ -560,17 +536,11 @@ configuration HomelabConfig
             Ensure = "Present"
         }
 
-        DnsServerAddress setdns {
-            Address        = $Node.IPDC01
-            InterfaceAlias = 'Ethernet'
-            AddressFamily  = 'IPv4'
-        }
-
         Computer JoinDomain {
             Name       = 'localhost'
             DomainName = $Node.DomainName
             Credential = $Credential # Credential to join to domain
-            DependsOn  = '[cVMName]vmname', '[DnsServerAddress]setdns'
+            DependsOn  = '[cVMName]vmname'
         }
 
         Firewall iis {
@@ -693,12 +663,6 @@ configuration HomelabConfig
             DependsOn      = '[NetIPInterface]DisableDhcp'
         }
 
-        DnsServerAddress setdns {
-            Address        = $Node.IPDC02
-            InterfaceAlias = 'Ethernet'
-            AddressFamily  = 'IPv4'
-        }
-
         WindowsFeature ADDSInstall {             
             Ensure = "Present"             
             Name   = "AD-Domain-Services"             
@@ -775,12 +739,6 @@ configuration HomelabConfig
             DependsOn      = '[NetIPInterface]DisableDhcp'
         }
 
-        DnsServerAddress setdns {
-            Address        = $Node.IPDC01
-            InterfaceAlias = 'Ethernet'
-            AddressFamily  = 'IPv4'
-        }
-
         WindowsFeature ADDSInstall {             
             Ensure = "Present"             
             Name   = "AD-Domain-Services"             
@@ -819,12 +777,6 @@ configuration HomelabConfig
             SkipCcmClientSDK = $true 
         }
 
-        DnsServerAddress setdns {
-            Address        = $Node.IPDC01
-            InterfaceAlias = 'Ethernet'
-            AddressFamily  = 'IPv4'
-        }
-
         Computer JoinDomain {
             Name       = 'localhost'
             DomainName = $Node.DomainName
@@ -855,17 +807,11 @@ configuration HomelabConfig
             SkipCcmClientSDK = $true 
         }
 
-        DnsServerAddress setdns {
-            Address        = $Node.IPDC01
-            InterfaceAlias = 'Ethernet'
-            AddressFamily  = 'IPv4'
-        }
-
         Computer JoinDomain {
             Name       = 'localhost'
             DomainName = $Node.DomainName
             Credential = $Credential
-            DependsOn  = '[cVMName]vmname', '[DnsServerAddress]setdns'
+            DependsOn  = '[cVMName]vmname'
         }
 
         WindowsFeature Framework3 {
@@ -944,17 +890,11 @@ configuration HomelabConfig
             SkipCcmClientSDK = $true 
         }
 
-        DnsServerAddress setdns {
-            Address        = $Node.IPDC01
-            InterfaceAlias = 'Ethernet'
-            AddressFamily  = 'IPv4'
-        }
-
         Computer JoinDomain {
             Name       = 'localhost'
             DomainName = $Node.DomainName
             Credential = $Credential
-            DependsOn  = '[cVMName]vmname', '[DnsServerAddress]setdns'
+            DependsOn  = '[cVMName]vmname'
         }
 
         WindowsFeature InstallServer-Media-Foundation {
