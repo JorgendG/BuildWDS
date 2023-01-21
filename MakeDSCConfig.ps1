@@ -781,7 +781,7 @@ configuration HomelabConfig
             Name       = 'localhost'
             DomainName = $Node.DomainName
             Credential = $Credential
-            DependsOn  = '[cVMName]vmname', '[DnsServerAddress]setdns'
+            DependsOn  = '[cVMName]vmname'
         }
 
         WindowsFeature InstallHyper-V-PowerShell {
